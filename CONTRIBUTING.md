@@ -14,7 +14,7 @@ Este proyecto utiliza un flujo basado en:
 - **Forks**
 - **Ramas por funcionalidad**
 - **Pull Requests (PR)**
-- **Revisión por parte del responsable del proyecto (Pude)**
+- **Revisión por parte del responsable del proyecto (Jorge)**
 
 Nadie puede trabajar directamente sobre `main`.
 
