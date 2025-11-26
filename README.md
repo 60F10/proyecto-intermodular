@@ -1,4 +1,4 @@
-# 🚀 Proyecto Intermodular — Lovelace  
+# 🚀 Proyecto Intermodular — Grupo Lovelace  
 Aplicación web completa para la gestión del Economato CIFP Virgen de Candelaria.  
 Desarrollado siguiendo estándares profesionales, buenas prácticas y un flujo de trabajo colaborativo real.
 
@@ -66,7 +66,86 @@ proyecto-intermodular/
 ├── nginx/            # Archivos de configuración del proxy inverso
 ├── scripts/          # Scripts de instalación / despliegue
 ├── docs/             # Documentación adicional del proyecto
-├── README.md         # Este archivo
+├── README.md         
 ├── CONTRIBUTING.md   # Guía para colaboradores
 └── .gitignore
+
+---
+
+## 🧪 Instalación y Ejecución
+
+_(Cuando el proyecto esté configurado por completo, este apartado se actualizará.)_
+
+### 🟥 Backend NestJS (pendiente)
+
+```bash
+cd backend
+npm install
+npm run start:dev
+```
+
+### 🟦 Frontend React (pendiente)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 🟩 Docker Compose (pendiente)
+
+```bash
+docker compose up -d
+```
+
+---
+
+## 🗺️ Roadmap del Proyecto
+
+### ✔ Sprint 1 — Configuración Inicial
+
+- Crear GitHub Organization
+- Crear repositorio limpio
+- Crear `.gitignore`
+- Añadir `CONTRIBUTING.md`
+- Crear `README.md`
+- Crear estructura base de carpetas
+- Instalar NestJS en `/backend`
+
+### ⏳ Sprint 2 — Backend Base
+
+- Configurar `.env`
+- Integrar TypeORM
+- Conectar PostgreSQL
+- Crear entidad `User`
+- Crear módulo `Users`
+- Crear módulo `Auth` (JWT)
+- Implementar `/auth/register` + `/auth/login`
+
+### ⏳ Sprint 3 — Frontend Base
+
+- Crear estructura de React + Vite
+- Crear vistas iniciales
+- Pantalla de Login
+- Conexión con API NestJS
+- Layout general
+
+### ⏳ Sprint 4 — Integración y Despliegue
+
+- Crear `Dockerfile` backend + frontend
+- Crear `docker-compose.yml`
+- Configurar Nginx (reverse proxy)
+- Desplegar en VM Linux
+- Crear script ejecutable final
+
+---
+
+## 🤝 Equipo
+
+| Miembro      | Rol                                             |
+|--------------|-------------------------------------------------|
+| Jorge         | Team Lead • Revisor oficial  |
+| Raúl         | Desarrollador colaborador                       |
+| Benjamín     | Desarrollador colaborador                       |
+| Yaret        | Desarrollador colaborador                       |
 
