@@ -100,46 +100,6 @@ docker compose up -d
 
 ---
 
-## 🗺️ Roadmap del Proyecto
-
-### ✔ Sprint 1 — Configuración Inicial
-
-- Crear GitHub Organization
-- Crear repositorio limpio
-- Crear `.gitignore`
-- Añadir `CONTRIBUTING.md`
-- Crear `README.md`
-- Crear estructura base de carpetas
-- Instalar NestJS en `/backend`
-
-### ⏳ Sprint 2 — Backend Base
-
-- Configurar `.env`
-- Integrar TypeORM
-- Conectar PostgreSQL
-- Crear entidad `User`
-- Crear módulo `Users`
-- Crear módulo `Auth` (JWT)
-- Implementar `/auth/register` + `/auth/login`
-
-### ⏳ Sprint 3 — Frontend Base
-
-- Crear estructura de React + Vite
-- Crear vistas iniciales
-- Pantalla de Login
-- Conexión con API NestJS
-- Layout general
-
-### ⏳ Sprint 4 — Integración y Despliegue
-
-- Crear `Dockerfile` backend + frontend
-- Crear `docker-compose.yml`
-- Configurar Nginx (reverse proxy)
-- Desplegar en VM Linux
-- Crear script ejecutable final
-
----
-
 ## 🤝 Equipo
 
 | Miembro      | Rol                                             |
