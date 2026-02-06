@@ -1,0 +1,138 @@
+# Guía de trabajo — Proyecto Intermodular Lovelace
+
+Este documento explica **cómo trabajar en el proyecto sin romper nada**, qué comandos usar y cuál es el flujo obligatorio de trabajo.
+
+Si sigues esta guía, podrás desarrollar tu tarea correctamente.
+
+---
+
+## 📦 Requisitos previos
+- Git instalado
+- Docker Desktop funcionando
+- Node.js instalado
+- Acceso al repositorio de la organización
+
+---
+
+## 🧠 Flujo de trabajo obligatorio
+
+### Reglas generales
+- ❌ Nadie trabaja directamente sobre `main`
+- ❌ Nadie hace push al repo original salvo el responsable
+- ✅ Todo trabajo parte de una **Issue**
+- ✅ Todo desarrollo se hace en **ramas**
+- ✅ Todo se entrega mediante **Pull Request**
+- ✅ El merge solo lo hace el responsable del proyecto
+
+---
+
+## 🔁 1. Crear tu fork (una sola vez)
+
+Desde GitHub:
+- Entra al repositorio de la organización
+- Pulsa **Fork**
+- Usa tu cuenta personal
+
+---
+
+## 📥 2. Clonar tu fork (NO el repo original)
+
+```bash
+git clone git@github.com:TU_USUARIO/proyecto-intermodular.git
+cd proyecto-intermodular
+```
+
+---
+
+## 🔗 3. Añadir el repo original como upstream (una sola vez)
+
+git remote add upstream git@github.com:proyecto-intermodular-lovelace/proyecto-intermodular.git
+
+Comprobar: git remote -v
+
+---
+
+## 🔄 4. Mantener tu fork actualizado (MUY IMPORTANTE)
+
+Antes de empezar a programar y antes de abrir un PR:
+
+git fetch upstream
+
+git merge upstream/main
+
+---
+
+## 🌿 5. Crear rama de trabajo
+
+Nunca trabajes en main.
+
+git checkout -b feature/nombre-de-tu-tarea
+
+Ejemplos: 
+
+git checkout -b feature/users-module
+
+git checkout -b chore/db-scripts
+
+---
+
+## 🐳 6. Levantar la base de datos (Docker)
+
+Desde la raíz del proyecto:
+docker compose up -d
+
+Comprobar que está arriba:
+docker ps
+
+---
+
+## 🗄️ 7. Ejecutar el schema de la base de datos (si es necesario)
+
+docker exec -i lovelace_db psql -U lovelace -d lovelace < scripts/db/001_init.sql
+
+---
+
+## 🌱 8. Cargar datos iniciales (seed)
+
+docker exec -i lovelace_db psql -U lovelace -d lovelace < scripts/db/002_seed.sql
+
+---
+
+## 🧪 9. Entrar a la base de datos (psql)
+
+docker exec -it lovelace_db psql -U lovelace -d lovelace
+
+### Comandos útiles dentro de psql:
+
+\dt              -- listar tablas
+
+\d users         -- ver estructura de una 
+tabla
+
+SELECT * FROM users;
+
+\q               -- salir
+
+---
+
+## ⚙️ 10. Arrancar el backend (NestJS)
+
+cd backend
+npm install
+npm run start:dev
+
+---
+
+## 🩺 11. Comprobar conexión a la base de datos
+
+Con el backend arrancado: curl http://localhost:3000/health/db
+
+Debe devolver algo como: { "db": "up", "result": [{ "ok": 1 }] }
+
+---
+
+## 🧾 12. Ver estado de Git
+
+git status
+
+---
