@@ -36,4 +36,14 @@ export class UsersService {
 
         return user;
     }
+
+    /**
+     * Busca un usuario por email (incluyendo passwordHash para auth)
+     * @param email - Email del usuario
+     */
+    async findByEmail(email: string): Promise<User | null> {
+        return this.usersRepository.findOne({
+            where: { email },
+        });
+    }
 }
