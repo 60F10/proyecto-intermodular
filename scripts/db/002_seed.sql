@@ -6,13 +6,14 @@ BEGIN;
 -- =========================
 -- USUARIOS
 -- =========================
+-- Contraseña para desarrollo: "lovelace"
 
 -- SUPERADMIN (Jefe Economato)
 INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
 VALUES (
   '11111111-1111-1111-1111-111111111111',
   'jefe@lovelace.local',
-  'hash_superadmin',
+  '$2b$10$tKps4gAmfgBUJXXfxu0R4OE1HXL5/XTYfivVz3bKl5ORUTxWQgUdG',
   'SUPERADMIN',
   'Jefe',
   'Economato'
@@ -24,7 +25,7 @@ INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
 VALUES (
   '22222222-2222-2222-2222-222222222222',
   'profe@lovelace.local',
-  'hash_admin',
+  '$2b$10$IQ6gG4Yq0y89RNWQXJ/5fO32q1h4w1W.gYOcx1EiabfsJx4qwyjxK',
   'ADMIN',
   'Profesor',
   'Cocina'
@@ -36,7 +37,7 @@ INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
 VALUES (
   '33333333-3333-3333-3333-333333333333',
   'alumno@lovelace.local',
-  'hash_user',
+  '$2b$10$oWHDt8pZizizTAwRQQOSU.aAZVfeIRsnUk9nq6QNrpmRWKRF6yeHm',
   'USER',
   'Alumno',
   'Primero'
