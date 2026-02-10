@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { PaginationQueryDto } from './pagination-query.dto';
-import { PaginatedResponse } from './paginated-response.interface';
+import { PaginationQueryDto } from '../dto/pagination-query.dto';
+import { PaginatedResponse } from '../dto/paginated-response.interface';
 
 @Injectable()
 export class PaginationService {
-  async paginate<T>(
-    query: SelectQueryBuilder<T>,
+  async paginate<T extends { id: string }>(
+    query: SelectQueryBuilder<any>,
     paginationDto: PaginationQueryDto,
   ): Promise<PaginatedResponse<T>> {
     const page = paginationDto.page || 1;
@@ -42,8 +42,8 @@ export class PaginationService {
     };
   }
 
-  async paginateRepository<T>(
-    repository: Repository<T>,
+  async paginateRepository<T extends { id: string }>(
+    repository: Repository<any>,
     paginationDto: PaginationQueryDto,
     where?: any,
   ): Promise<PaginatedResponse<T>> {

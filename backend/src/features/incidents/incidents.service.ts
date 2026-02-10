@@ -73,14 +73,16 @@ export class IncidentsService {
   }
 
   async updateStatus(id: string, estado: IncidentStatus): Promise<Incident> {
-    return this.update(id, { estado });
+    const updateDto: UpdateIncidentDto = { estado };
+    return this.update(id, updateDto);
   }
 
   async resolve(id: string, resolucion: string): Promise<Incident> {
-    return this.update(id, {
+    const updateDto: UpdateIncidentDto = {
       estado: IncidentStatus.RESOLVED,
       resolucion,
-    });
+    };
+    return this.update(id, updateDto);
   }
 
   async delete(id: string): Promise<void> {

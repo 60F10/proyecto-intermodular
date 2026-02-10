@@ -6,12 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-
-export enum UserRole {
-  SUPERADMIN = 'SUPERADMIN',
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
+import { UserRole } from '../../../common/enums/role.enum';
 
 @Entity('users')
 export class User {

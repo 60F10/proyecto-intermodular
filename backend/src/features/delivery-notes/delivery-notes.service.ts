@@ -76,7 +76,8 @@ export class DeliveryNotesService {
   }
 
   async updateStatus(id: string, estado: DeliveryStatus): Promise<DeliveryNote> {
-    return this.update(id, { estado });
+    const updateDto: UpdateDeliveryNoteDto = { estado };
+    return this.update(id, updateDto);
   }
 
   async delete(id: string): Promise<void> {

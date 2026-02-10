@@ -109,7 +109,8 @@ export class ProductsService {
    * Desactiva un producto
    */
   async deactivate(id: string): Promise<Product> {
-    return this.update(id, { activo: false });
+    const updateDto: UpdateProductDto = { activo: false };
+    return this.update(id, updateDto);
   }
 
   /**
