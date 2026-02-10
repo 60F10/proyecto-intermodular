@@ -102,6 +102,8 @@ docker exec -i lovelace_db psql -U lovelace -d lovelace < scripts/db/002_seed.sq
 
 docker exec -it lovelace_db psql -U lovelace -d lovelace
 
+docker exec -it lovelace_db psql -U lovelace -d lovelace -c "select * from users"
+
 ### Comandos útiles dentro de psql:
 
 \dt              -- listar tablas

@@ -18,14 +18,14 @@ export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'order_id' })
   orderId: string;
 
   @ManyToOne(() => Order, (order) => order.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'producto_id' })
   productoId: string;
 
   @ManyToOne(() => Product, (product) => product.orderItems, { onDelete: 'RESTRICT' })
@@ -35,7 +35,7 @@ export class OrderItem {
   @Column({ type: 'int' })
   cantidad: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, name: 'precio_unitario' })
   precioUnitario: number;
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })

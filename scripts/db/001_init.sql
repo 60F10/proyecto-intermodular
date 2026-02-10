@@ -1,5 +1,5 @@
 -- scripts/db/001_init.sql
--- Modelo v1 - Proyecto Intermodular Lovelace
+-- Modelo actualizado - Proyecto Intermodular Lovelace
 
 BEGIN;
 
@@ -16,23 +16,27 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE product_type AS ENUM ('INGREDIENT', 'MATERIAL');
+  CREATE TYPE order_status AS ENUM ('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE movement_type AS ENUM ('IN', 'OUT', 'RETURN', 'WASTE', 'ADJUSTMENT');
+  CREATE TYPE delivery_status AS ENUM ('PENDING', 'IN_PROGRESS', 'DELIVERED', 'FAILED');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE order_status AS ENUM ('DRAFT', 'SUBMITTED', 'APPROVED', 'MERGED', 'ORDERED', 'RECEIVED', 'CANCELLED');
+  CREATE TYPE incident_priority AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
-  CREATE TYPE incident_section AS ENUM ('INGREDIENTES', 'MATERIALES', 'USUARIOS', 'PEDIDOS', 'ALBARANES', 'PROVEEDORES', 'OTRO');
+  CREATE TYPE incident_status AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE inventory_movement_type AS ENUM ('ENTRY', 'EXIT', 'ADJUSTMENT', 'LOSS');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- =========================
--- USERS / CLASSES
+-- USERS
 -- =========================
 CREATE TABLE IF NOT EXISTS users (
   id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -47,160 +51,111 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS studies (
-  id   uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name varchar(120) UNIQUE NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS classes (
-  id         uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  level      varchar(60) NOT NULL,
-  group_code varchar(10) NOT NULL,
-  study_id   uuid NOT NULL REFERENCES studies(id) ON DELETE RESTRICT,
-  CONSTRAINT uq_class UNIQUE (level, group_code, study_id)
-);
-
--- Alumno -> 1 clase (solo se usa si role=USER)
-CREATE TABLE IF NOT EXISTS student_profile (
-  user_id  uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  class_id uuid NOT NULL REFERENCES classes(id) ON DELETE RESTRICT
-);
-
--- Profesor -> N clases (solo se usa si role=ADMIN)
-CREATE TABLE IF NOT EXISTS teacher_class (
-  teacher_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  class_id   uuid NOT NULL REFERENCES classes(id) ON DELETE RESTRICT,
-  PRIMARY KEY (teacher_id, class_id)
-);
-
 -- =========================
--- SUPPLIERS / CATEGORIES / PRODUCTS
+-- PRODUCTS
 -- =========================
-CREATE TABLE IF NOT EXISTS suppliers (
-  id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name          varchar(200) UNIQUE NOT NULL,
-  contact_email varchar(255),
-  phone         varchar(50),
-  notes         text,
-  is_active     boolean NOT NULL DEFAULT true,
-  created_at    timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS categories (
-  id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name         varchar(120) NOT NULL,
-  product_type product_type NOT NULL,
-  CONSTRAINT uq_category UNIQUE (name, product_type)
-);
-
 CREATE TABLE IF NOT EXISTS products (
-  id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code          varchar(30) UNIQUE NOT NULL,
-  name          varchar(200) NOT NULL,
-  product_type  product_type NOT NULL,
-  unit_type     varchar(30) NOT NULL,
-  unit_price    numeric(12,2) NOT NULL CHECK (unit_price >= 0),
-  supplier_id   uuid NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
-  category_id   uuid NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-
-  -- Solo ingredientes normalmente
-  yield_percent numeric(5,2),
-  relation      numeric(10,4),
-
-  -- Caducidad: NULL = no caduca
-  expires_at    date,
-
-  created_by    uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  is_active     boolean NOT NULL DEFAULT true,
-  created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT now()
-);
-
--- =========================
--- INVENTORY
--- =========================
-CREATE TABLE IF NOT EXISTS inventory (
-  product_id  uuid PRIMARY KEY REFERENCES products(id) ON DELETE CASCADE,
-  current_qty numeric(12,3) NOT NULL DEFAULT 0,
+  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nombre      varchar(255) NOT NULL,
+  descripcion text,
+  sku         varchar(100) UNIQUE NOT NULL,
+  precio      numeric(12,2) NOT NULL CHECK (precio >= 0),
+  stock       int NOT NULL DEFAULT 0,
+  categoria   varchar(255),
+  activo      boolean NOT NULL DEFAULT true,
+  created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS stock_movements (
-  id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  product_id    uuid NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-  movement_type movement_type NOT NULL,
-  qty           numeric(12,3) NOT NULL CHECK (qty > 0),
-  reason        text,
-  created_by    uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  created_at    timestamptz NOT NULL DEFAULT now()
 );
 
 -- =========================
 -- ORDERS
 -- =========================
 CREATE TABLE IF NOT EXISTS orders (
-  id                   uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  created_by           uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  class_id             uuid REFERENCES classes(id) ON DELETE SET NULL,
-  supplier_id          uuid REFERENCES suppliers(id) ON DELETE SET NULL,
-  status               order_status NOT NULL DEFAULT 'DRAFT',
-  week_start           date NOT NULL,
-  merged_into_order_id uuid REFERENCES orders(id) ON DELETE SET NULL,
-  created_at           timestamptz NOT NULL DEFAULT now(),
-  updated_at           timestamptz NOT NULL DEFAULT now()
+  id                 uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  numero_orden       varchar(50) UNIQUE NOT NULL,
+  usuario_id         uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  estado             order_status NOT NULL DEFAULT 'PENDING',
+  monto_total        numeric(12,2) NOT NULL CHECK (monto_total >= 0),
+  observaciones      text,
+  domicilio_entrega  varchar(255),
+  created_at         timestamptz NOT NULL DEFAULT now(),
+  updated_at         timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS order_items (
-  id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  order_id      uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id    uuid NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-  qty_requested numeric(12,3) NOT NULL CHECK (qty_requested > 0),
-  qty_approved  numeric(12,3),
-  notes         text,
-  CONSTRAINT uq_order_product UNIQUE (order_id, product_id)
-);
+CREATE INDEX IF NOT EXISTS idx_orders_estado ON orders(estado);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 
 -- =========================
--- DELIVERY NOTES (ALBARANES)
+-- ORDER ITEMS
+-- =========================
+CREATE TABLE IF NOT EXISTS order_items (
+  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  order_id        uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  producto_id     uuid NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+  cantidad        int NOT NULL CHECK (cantidad > 0),
+  precio_unitario numeric(12,2) NOT NULL CHECK (precio_unitario >= 0),
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  updated_at      timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_producto_id ON order_items(producto_id);
+
+-- =========================
+-- DELIVERY NOTES
 -- =========================
 CREATE TABLE IF NOT EXISTS delivery_notes (
-  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code        varchar(60) UNIQUE,
-  order_id    uuid REFERENCES orders(id) ON DELETE SET NULL,
-  supplier_id uuid NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
-  received_by uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  received_at timestamptz NOT NULL,
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id               uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  numero_remito    varchar(50) UNIQUE NOT NULL,
+  pedido_id        uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  estado           delivery_status NOT NULL DEFAULT 'PENDING',
+  transportista    varchar(255) NOT NULL,
+  numero_tracking  varchar(50),
+  fecha_entrega    timestamptz,
+  observaciones    text,
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  updated_at       timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS delivery_note_items (
-  id               uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  delivery_note_id uuid NOT NULL REFERENCES delivery_notes(id) ON DELETE CASCADE,
-  product_id       uuid NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-  qty_received     numeric(12,3) NOT NULL CHECK (qty_received > 0),
-  unit_price       numeric(12,2),
-  CONSTRAINT uq_dn_product UNIQUE (delivery_note_id, product_id)
-);
+CREATE INDEX IF NOT EXISTS idx_delivery_notes_estado ON delivery_notes(estado);
 
 -- =========================
 -- INCIDENTS
 -- =========================
 CREATE TABLE IF NOT EXISTS incidents (
-  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-  created_by  uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  section     incident_section NOT NULL,
-  context     text NOT NULL,
-  is_reviewed boolean NOT NULL DEFAULT false,
-  reviewed_by uuid REFERENCES users(id) ON DELETE SET NULL,
-  reviewed_at timestamptz,
-  created_at  timestamptz NOT NULL DEFAULT now()
+  id           uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  titulo       varchar(255) NOT NULL,
+  descripcion  text NOT NULL,
+  prioridad    incident_priority NOT NULL DEFAULT 'MEDIUM',
+  estado       incident_status NOT NULL DEFAULT 'OPEN',
+  pedido_id    uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  usuario_id   uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  resolucion   text,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  updated_at   timestamptz NOT NULL DEFAULT now()
 );
 
+CREATE INDEX IF NOT EXISTS idx_incidents_estado ON incidents(estado);
+CREATE INDEX IF NOT EXISTS idx_incidents_prioridad ON incidents(prioridad);
+CREATE INDEX IF NOT EXISTS idx_incidents_created_at ON incidents(created_at);
+
 -- =========================
--- ÍNDICES ÚTILES
+-- INVENTORY MOVEMENTS
 -- =========================
-CREATE INDEX IF NOT EXISTS idx_products_type ON products(product_type);
-CREATE INDEX IF NOT EXISTS idx_orders_week ON orders(week_start);
-CREATE INDEX IF NOT EXISTS idx_stock_movements_product ON stock_movements(product_id);
+CREATE TABLE IF NOT EXISTS inventory_movements (
+  id            uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  producto_id   uuid NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+  tipo          inventory_movement_type NOT NULL,
+  cantidad      int NOT NULL,
+  motivo        text,
+  usuario_id    uuid REFERENCES users(id) ON DELETE SET NULL,
+  observaciones text,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_inventory_movements_producto_id ON inventory_movements(producto_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_movements_tipo ON inventory_movements(tipo);
+CREATE INDEX IF NOT EXISTS idx_inventory_movements_created_at ON inventory_movements(created_at);
 
 COMMIT;

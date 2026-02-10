@@ -51,14 +51,14 @@ export class Incident {
   })
   estado: IncidentStatus;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'pedido_id' })
   pedidoId: string;
 
   @ManyToOne('Order', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'pedido_id' })
   pedido: any;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'usuario_id' })
   usuarioId: string;
 
   @ManyToOne('User', 'incidents', { onDelete: 'CASCADE' })

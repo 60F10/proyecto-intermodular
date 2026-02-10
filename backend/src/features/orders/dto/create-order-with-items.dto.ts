@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsOptional, IsPositive, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsPositive, IsString, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OrderItemInput {
   @ApiProperty({ example: '987e6543-e89b-12d3-a456-426614174000' })
-  @IsUUID()
+  @Matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)
   productoId: string;
 
   @ApiProperty({ example: 5 })
@@ -19,12 +19,13 @@ class OrderItemInput {
 }
 
 export class CreateOrderWithItemsDto {
-  @ApiProperty({ example: 'ORD-0001' })
+  @ApiProperty({ example: 'ORD-0001', required: false })
+  @IsOptional()
   @IsString()
-  numeroOrden: string;
+  numeroOrden?: string;
 
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
-  @IsUUID()
+  @Matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)
   usuarioId: string;
 
   @ApiProperty({ example: 149.95 })

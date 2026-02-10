@@ -13,7 +13,7 @@ import {
   ClassSerializerInterceptor,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -27,6 +27,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderWithItemsDto } from './dto/create-order-with-items.dto';
 
 @ApiTags('Orders')
+@ApiBearerAuth('jwt')
 @Controller('orders')
 @UseInterceptors(ClassSerializerInterceptor)
 export class OrdersController {

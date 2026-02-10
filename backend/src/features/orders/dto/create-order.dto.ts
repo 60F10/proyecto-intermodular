@@ -1,19 +1,21 @@
-import { IsString, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Matches, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateOrderDto {
   @ApiProperty({
     example: 'ORD-2025-001',
     description: 'Número único de orden',
+    required: false,
   })
+  @IsOptional()
   @IsString()
-  numeroOrden: string;
+  numeroOrden?: string;
 
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'UUID del usuario que realiza la orden',
   })
-  @IsUUID()
+  @Matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)
   usuarioId: string;
 
   @ApiProperty({

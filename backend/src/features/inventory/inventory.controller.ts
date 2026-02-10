@@ -11,7 +11,7 @@ import {
   ClassSerializerInterceptor,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -23,6 +23,7 @@ import { InventoryMovement } from './entities/inventory-movement.entity';
 import { CreateInventoryMovementDto } from './dto/create-inventory-movement.dto';
 
 @ApiTags('Inventory')
+@ApiBearerAuth('jwt')
 @Controller('inventory')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard)

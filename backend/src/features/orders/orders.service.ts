@@ -84,6 +84,11 @@ export class OrdersService {
    * Crea un nuevo pedido
    */
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
+    // Generar número de orden si no se proporciona
+    if (!createOrderDto.numeroOrden) {
+      createOrderDto.numeroOrden = `ORD-${Date.now()}`;
+    }
+    
     const order = this.ordersRepository.create(createOrderDto);
     return this.ordersRepository.save(order);
   }
@@ -97,6 +102,11 @@ export class OrdersService {
     items: Array<{ productoId: string; cantidad: number; precioUnitario: number }>,
   ): Promise<Order> {
     return await this.dataSource.transaction(async (manager) => {
+      // Generar número de orden si no se proporciona
+      if (!createOrderDto.numeroOrden) {
+        createOrderDto.numeroOrden = `ORD-${Date.now()}`;
+      }
+      
       // Crear la orden
       const order = manager.create(Order, createOrderDto);
       const savedOrder = await manager.save(order);
