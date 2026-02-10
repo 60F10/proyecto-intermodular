@@ -7,6 +7,15 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Configurar CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || ['http://localhost:3001', 'http://localhost:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 3600,
+  });
+
   // Establecer prefijo global para todas las rutas
   app.setGlobalPrefix('api');
 
