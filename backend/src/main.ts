@@ -1,12 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Establecer prefijo global para todas las rutas
   app.setGlobalPrefix('api');
+
+  // Registrar filtro de excepciones global
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Activamos el Pipe de validación global
   app.useGlobalPipes(
