@@ -12,6 +12,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,8 +44,8 @@ export class AuthController {
     })
     @ApiResponse({ status: 400, description: 'Email ya existe' })
     @Post('register')
-    async register(@Body() createUserDto: any) {
-        return this.authService.register(createUserDto);
+    async register(@Body() registerDto: RegisterDto) {
+      return this.authService.register(registerDto);
     }
 
     @ApiBearerAuth('jwt')

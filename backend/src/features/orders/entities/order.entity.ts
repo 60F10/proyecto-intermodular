@@ -16,7 +16,7 @@ export enum OrderStatus {
 }
 
 @Entity('orders')
-@Index(['status'])
+@Index(['estado'])
 @Index(['createdAt'])
 export class Order {
   @PrimaryGeneratedColumn('uuid')

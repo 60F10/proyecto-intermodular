@@ -3,6 +3,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -53,7 +54,7 @@ export class AuthService {
   /**
    * Registro de nuevos usuarios (opcional, si quieres centralizarlo aquí)
    */
-  async register(registrationData: any) {
+  async register(registrationData: RegisterDto) {
     return this.usersService.create(registrationData);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { UserRole } from '../../common/enums/role.enum';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -27,6 +28,10 @@ export class UsersService {
       const salt = await bcrypt.genSalt(10);
       userData.passwordHash = await bcrypt.hash(userData.password, salt);
       delete userData.password; // Limpieza por seguridad
+    }
+
+    if (!userData.role) {
+      userData.role = UserRole.USER;
     }
 
     const newUser = this.usersRepository.create(userData);
