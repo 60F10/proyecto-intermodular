@@ -3,6 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './features/health/health.module';
 import { AuthModule } from './features/auth/auth.module';
+import { ProductsModule } from './features/products/products.module';
+import { OrdersModule } from './features/orders/orders.module';
+import { DeliveryNotesModule } from './features/delivery-notes/delivery-notes.module';
+import { IncidentsModule } from './features/incidents/incidents.module';
+import { InventoryModule } from './features/inventory/inventory.module';
 import { HttpLoggingMiddleware } from './common/logger/http-logging.middleware';
 import { CustomLogger } from './common/logger/custom.logger';
 
@@ -29,6 +34,11 @@ import { CustomLogger } from './common/logger/custom.logger';
     }),
     HealthModule,
     AuthModule,
+    ProductsModule,
+    OrdersModule,
+    DeliveryNotesModule,
+    IncidentsModule,
+    InventoryModule,
   ],
   providers: [CustomLogger],
   exports: [CustomLogger],
