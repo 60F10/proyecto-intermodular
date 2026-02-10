@@ -6,13 +6,24 @@ import {
   Param,
   Put,
   Patch,
+  Delete,
+  Query,
   ParseUUIDPipe,
   UseInterceptors,
   ClassSerializerInterceptor,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../../common/enums/role.enum';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/dto/paginated-response.interface';
 import { ProductsService } from './products.service';
 import { Product } from './entities/product.entity';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -20,15 +31,16 @@ import { Product } from './entities/product.entity';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @ApiOperation({ summary: 'Obtener todos los productos activos' })
+  @ApiOperation({ summary: 'Obtener todos los productos con paginación' })
   @ApiResponse({
     status: 200,
-    description: 'Lista de productos',
-    type: [Product],
+    description: 'Lista paginada de productos',
   })
   @Get()
-  async findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  async findAll(
+    @Query() paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Product>> {
+    return this.productsService.findAllPaginated(paginationDto);
   }
 
   @ApiOperation({ summary: 'Obtener producto por ID' })
@@ -46,42 +58,43 @@ export class ProductsController {
   }
 
   @ApiOperation({ summary: 'Obtener producto por SKU' })
-  @ApiResponse({
-    status: 200,
-    description: 'Producto encontrado',
-    type: Product,
-  })
   @Get('sku/:sku')
   async findBySku(@Param('sku') sku: string): Promise<Product | null> {
     return this.productsService.findBySku(sku);
   }
 
-  @ApiOperation({ summary: 'Crear nuevo producto' })
+  @ApiOperation({ summary: 'Crear nuevo producto (ADMIN)' })
   @ApiResponse({
     status: 201,
     description: 'Producto creado',
     type: Product,
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Post()
-  async create(@Body() createProductDto: Partial<Product>): Promise<Product> {
+  async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
     return this.productsService.create(createProductDto);
   }
 
-  @ApiOperation({ summary: 'Actualizar producto' })
+  @ApiOperation({ summary: 'Actualizar producto (ADMIN)' })
   @ApiResponse({
     status: 200,
     description: 'Producto actualizado',
     type: Product,
   })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Put(':id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateProductDto: Partial<Product>,
+    @Body() updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     return this.productsService.update(id, updateProductDto);
   }
 
-  @ApiOperation({ summary: 'Actualizar stock del producto' })
+  @ApiOperation({ summary: 'Actualizar stock del producto (ADMIN)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Patch(':id/stock')
   async updateStock(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -90,11 +103,21 @@ export class ProductsController {
     return this.productsService.updateStock(id, body.cantidad);
   }
 
-  @ApiOperation({ summary: 'Desactivar producto' })
+  @ApiOperation({ summary: 'Desactivar producto (ADMIN)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Patch(':id/deactivate')
   async deactivate(
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<Product> {
     return this.productsService.deactivate(id);
+  }
+
+  @ApiOperation({ summary: 'Eliminar producto (SUPERADMIN)' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.SUPERADMIN)
+  @Delete(':id')
+  async delete(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
+    return this.productsService.delete(id);
   }
 }

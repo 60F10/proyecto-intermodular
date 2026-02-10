@@ -3,11 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { IncidentsController } from './incidents.controller';
 import { IncidentsService } from './incidents.service';
 import { Incident } from './entities/incident.entity';
+import { PaginationService } from '../../common/services/pagination.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Incident])],
   controllers: [IncidentsController],
-  providers: [IncidentsService],
+  providers: [IncidentsService, PaginationService],
   exports: [IncidentsService],
 })
 export class IncidentsModule {}

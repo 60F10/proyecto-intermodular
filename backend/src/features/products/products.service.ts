@@ -2,13 +2,32 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/dto/paginated-response.interface';
+import { PaginationService } from '../../common/services/pagination.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productsRepository: Repository<Product>,
+    private readonly paginationService: PaginationService,
   ) {}
+
+  /**
+   * Obtiene todos los productos activos con paginación
+   */
+  async findAllPaginated(
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Product>> {
+    return this.paginationService.paginateRepository(
+      this.productsRepository,
+      paginationDto,
+      { activo: true },
+    );
+  }
 
   /**
    * Obtiene todos los productos activos
@@ -49,7 +68,13 @@ export class ProductsService {
   /**
    * Crea un nuevo producto
    */
-  async create(createProductDto: Partial<Product>): Promise<Product> {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
+    // Verificar que el SKU sea único
+    const existingSku = await this.findBySku(createProductDto.sku);
+    if (existingSku) {
+      throw new Error(`SKU ${createProductDto.sku} ya existe`);
+    }
+
     const product = this.productsRepository.create(createProductDto);
     return this.productsRepository.save(product);
   }
@@ -57,8 +82,25 @@ export class ProductsService {
   /**
    * Actualiza un producto
    */
-  async update(id: string, updateProductDto: Partial<Product>): Promise<Product> {
+  async update(
+    id: string,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> {
     await this.findOne(id); // Verificar que existe
+
+    // Si se actualiza el SKU, verificar que sea único
+    if (updateProductDto.sku) {
+      const existingSku = await this.productsRepository.findOne({
+        where: {
+          sku: updateProductDto.sku,
+        },
+      });
+
+      if (existingSku && existingSku.id !== id) {
+        throw new Error(`SKU ${updateProductDto.sku} ya existe`);
+      }
+    }
+
     await this.productsRepository.update(id, updateProductDto);
     return this.findOne(id);
   }
@@ -68,6 +110,14 @@ export class ProductsService {
    */
   async deactivate(id: string): Promise<Product> {
     return this.update(id, { activo: false });
+  }
+
+  /**
+   * Elimina un producto (soft delete)
+   */
+  async delete(id: string): Promise<void> {
+    await this.findOne(id);
+    await this.productsRepository.delete(id);
   }
 
   /**

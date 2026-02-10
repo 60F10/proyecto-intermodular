@@ -2,13 +2,26 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InventoryMovement, InventoryMovementType } from './entities/inventory-movement.entity';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/dto/paginated-response.interface';
+import { PaginationService } from '../../common/services/pagination.service';
 
 @Injectable()
 export class InventoryService {
   constructor(
     @InjectRepository(InventoryMovement)
     private readonly movementsRepository: Repository<InventoryMovement>,
+    private readonly paginationService: PaginationService,
   ) {}
+
+  async findAllPaginated(
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<InventoryMovement>> {
+    return this.paginationService.paginateRepository(
+      this.movementsRepository,
+      paginationDto,
+    );
+  }
 
   async findAll(): Promise<InventoryMovement[]> {
     return this.movementsRepository.find({
@@ -26,6 +39,17 @@ export class InventoryService {
     }
 
     return movement;
+  }
+
+  async findByProductoPaginated(
+    productoId: string,
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<InventoryMovement>> {
+    return this.paginationService.paginateRepository(
+      this.movementsRepository,
+      paginationDto,
+      { productoId },
+    );
   }
 
   async findByProducto(productoId: string): Promise<InventoryMovement[]> {
@@ -83,5 +107,10 @@ export class InventoryService {
       tipo: InventoryMovementType.ADJUSTMENT,
       usuarioId,
     });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.findOne(id);
+    await this.movementsRepository.delete(id);
   }
 }

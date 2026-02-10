@@ -2,13 +2,28 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Incident, IncidentStatus } from './entities/incident.entity';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { PaginatedResponse } from '../../common/dto/paginated-response.interface';
+import { PaginationService } from '../../common/services/pagination.service';
+import { CreateIncidentDto } from './dto/create-incident.dto';
+import { UpdateIncidentDto } from './dto/update-incident.dto';
 
 @Injectable()
 export class IncidentsService {
   constructor(
     @InjectRepository(Incident)
     private readonly incidentsRepository: Repository<Incident>,
+    private readonly paginationService: PaginationService,
   ) {}
+
+  async findAllPaginated(
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Incident>> {
+    return this.paginationService.paginateRepository(
+      this.incidentsRepository,
+      paginationDto,
+    );
+  }
 
   async findAll(): Promise<Incident[]> {
     return this.incidentsRepository.find({
@@ -28,6 +43,17 @@ export class IncidentsService {
     return incident;
   }
 
+  async findByPedidoPaginated(
+    pedidoId: string,
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponse<Incident>> {
+    return this.paginationService.paginateRepository(
+      this.incidentsRepository,
+      paginationDto,
+      { pedidoId },
+    );
+  }
+
   async findByPedido(pedidoId: string): Promise<Incident[]> {
     return this.incidentsRepository.find({
       where: { pedidoId },
@@ -35,12 +61,12 @@ export class IncidentsService {
     });
   }
 
-  async create(createDto: Partial<Incident>): Promise<Incident> {
+  async create(createDto: CreateIncidentDto): Promise<Incident> {
     const incident = this.incidentsRepository.create(createDto);
     return this.incidentsRepository.save(incident);
   }
 
-  async update(id: string, updateDto: Partial<Incident>): Promise<Incident> {
+  async update(id: string, updateDto: UpdateIncidentDto): Promise<Incident> {
     await this.findOne(id);
     await this.incidentsRepository.update(id, updateDto);
     return this.findOne(id);
@@ -55,5 +81,10 @@ export class IncidentsService {
       estado: IncidentStatus.RESOLVED,
       resolucion,
     });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.findOne(id);
+    await this.incidentsRepository.delete(id);
   }
 }

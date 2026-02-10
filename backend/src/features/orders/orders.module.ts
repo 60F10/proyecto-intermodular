@@ -3,11 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { Order } from './entities/order.entity';
+import { PaginationService } from '../../common/services/pagination.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Order])],
   controllers: [OrdersController],
-  providers: [OrdersService],
+  providers: [OrdersService, PaginationService],
   exports: [OrdersService],
 })
 export class OrdersModule {}
