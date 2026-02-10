@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum DeliveryStatus {
@@ -26,6 +28,10 @@ export class DeliveryNote {
 
   @Column({ type: 'uuid' })
   pedidoId: string;
+
+  @ManyToOne('Order', 'deliveryNotes', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pedido_id' })
+  pedido: any;
 
   @Column({
     type: 'enum',

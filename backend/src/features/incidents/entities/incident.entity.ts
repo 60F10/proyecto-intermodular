@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum IncidentPriority {
@@ -52,8 +54,16 @@ export class Incident {
   @Column({ type: 'uuid' })
   pedidoId: string;
 
+  @ManyToOne('Order', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pedido_id' })
+  pedido: any;
+
   @Column({ type: 'uuid' })
   usuarioId: string;
+
+  @ManyToOne('User', 'incidents', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'usuario_id' })
+  usuario: any;
 
   @Column({ type: 'text', nullable: true })
   resolucion: string | null;

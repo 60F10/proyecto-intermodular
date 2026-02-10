@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('products')
@@ -33,6 +34,12 @@ export class Product {
 
   @Column({ type: 'boolean', default: true })
   activo: boolean;
+
+  @OneToMany('OrderItem', 'producto')
+  orderItems: any[];
+
+  @OneToMany('InventoryMovement', 'producto')
+  inventoryMovements: any[];
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;

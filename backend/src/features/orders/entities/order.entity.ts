@@ -5,7 +5,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { OrderItem } from './order-item.entity';
+import { DeliveryNote } from '../../delivery-notes/entities/delivery-note.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -28,6 +34,10 @@ export class Order {
   @Column({ type: 'uuid' })
   usuarioId: string;
 
+  @ManyToOne(() => User, (user) => user.orders, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'usuario_id' })
+  usuario: User;
+
   @Column({
     type: 'enum',
     enum: OrderStatus,
@@ -43,6 +53,12 @@ export class Order {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   domicilioEntrega: string | null;
+
+  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
+  items: OrderItem[];
+
+  @OneToMany(() => DeliveryNote, (note) => note.pedido)
+  deliveryNotes: DeliveryNote[];
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;

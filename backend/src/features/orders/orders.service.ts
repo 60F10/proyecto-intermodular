@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Order, OrderStatus } from './entities/order.entity';
+import { OrderItem } from './entities/order-item.entity';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 import { PaginatedResponse } from '../../common/dto/paginated-response.interface';
 import { PaginationService } from '../../common/services/pagination.service';
@@ -13,7 +14,10 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly ordersRepository: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemsRepository: Repository<OrderItem>,
     private readonly paginationService: PaginationService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -82,6 +86,32 @@ export class OrdersService {
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.ordersRepository.create(createOrderDto);
     return this.ordersRepository.save(order);
+  }
+
+  /**
+   * Crea un pedido con items en una transacción
+   * Garantiza que si algo falla, todo se revierte
+   */
+  async createWithItems(
+    createOrderDto: CreateOrderDto,
+    items: Array<{ productoId: string; cantidad: number; precioUnitario: number }>,
+  ): Promise<Order> {
+    return await this.dataSource.transaction(async (manager) => {
+      // Crear la orden
+      const order = manager.create(Order, createOrderDto);
+      const savedOrder = await manager.save(order);
+
+      // Crear los items del pedido
+      for (const item of items) {
+        const orderItem = manager.create(OrderItem, {
+          ...item,
+          orderId: savedOrder.id,
+        });
+        await manager.save(orderItem);
+      }
+
+      return savedOrder;
+    });
   }
 
   /**

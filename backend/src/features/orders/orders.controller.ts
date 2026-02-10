@@ -24,6 +24,7 @@ import { OrdersService } from './orders.service';
 import { Order, OrderStatus } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { CreateOrderWithItemsDto } from './dto/create-order-with-items.dto';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -65,6 +66,16 @@ export class OrdersController {
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
     return this.ordersService.create(createOrderDto);
+  }
+
+  @ApiOperation({ summary: 'Crear pedido con items (transaccional)' })
+  @UseGuards(JwtAuthGuard)
+  @Post('with-items')
+  async createWithItems(
+    @Body() createOrderWithItemsDto: CreateOrderWithItemsDto,
+  ): Promise<Order> {
+    const { items, ...orderData } = createOrderWithItemsDto;
+    return this.ordersService.createWithItems(orderData, items);
   }
 
   @ApiOperation({ summary: 'Actualizar pedido' })
