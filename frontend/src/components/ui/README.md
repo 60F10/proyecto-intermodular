@@ -60,8 +60,9 @@ import { Button } from '@/components/ui'
 Input con validación y mensajes de error integrados.
 
 **Props:**
-- `label`: `string` - Etiqueta del campo
+- `label`: `string` - Etiqueta del campo (se muestra en mayúsculas y negrita)
 - `error`: `string` - Mensaje de error a mostrar
+- `icon`: `Component` - Componente de icono de lucide-react para mostrar a la izquierda
 - `id`: `string` - ID del input (generado automáticamente si no se proporciona)
 - `type`: `string` (default: `'text'`)
 - Soporta `forwardRef` para react-hook-form
@@ -70,9 +71,11 @@ Input con validación y mensajes de error integrados.
 - Focus ring con color azul corporativo
 - Estado de error con color rojo corporativo
 - Mensaje de error debajo del campo
+- **Iconos internos** a la izquierda del input
+- **Labels en mayúsculas y negrita** según diseño corporativo
 - Accesibilidad completa (aria-labels, aria-describedby)
 
-**Ejemplo:**
+**Ejemplo sin icono:**
 ```jsx
 import { Input } from '@/components/ui'
 
@@ -82,6 +85,26 @@ import { Input } from '@/components/ui'
   placeholder="usuario@example.com"
   error={errors.email}
   {...register('email')}
+/>
+```
+
+**Ejemplo con icono:**
+```jsx
+import { Input } from '@/components/ui'
+import { User, Lock, Mail } from 'lucide-react'
+
+<Input
+  label="Usuario"
+  icon={User}
+  placeholder="Ingresa tu usuario"
+  error={errors.username}
+/>
+
+<Input
+  label="Clave"
+  type="password"
+  icon={Lock}
+  placeholder="Ingresa tu clave"
 />
 ```
 
