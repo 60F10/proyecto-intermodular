@@ -125,7 +125,7 @@ npm run start:dev
 
 ## 🩺 11. Comprobar conexión a la base de datos
 
-Con el backend arrancado: curl http://localhost:3000/health/db
+Con el backend arrancado: curl http://localhost:3000/api/health/db
 
 Debe devolver algo como: { "db": "up", "result": [{ "ok": 1 }] }
 

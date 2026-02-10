@@ -1,11 +1,22 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './features/health/health.module';
+import { AuthModule } from './features/auth/auth.module';
+import { ProductsModule } from './features/products/products.module';
+import { OrdersModule } from './features/orders/orders.module';
+import { DeliveryNotesModule } from './features/delivery-notes/delivery-notes.module';
+import { IncidentsModule } from './features/incidents/incidents.module';
+import { InventoryModule } from './features/inventory/inventory.module';
+import { HttpLoggingMiddleware } from './common/logger/http-logging.middleware';
+import { CustomLogger } from './common/logger/custom.logger';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+      ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '../.env',
+    }),
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -22,6 +33,18 @@ import { HealthModule } from './features/health/health.module';
       }),
     }),
     HealthModule,
+    AuthModule,
+    ProductsModule,
+    OrdersModule,
+    DeliveryNotesModule,
+    IncidentsModule,
+    InventoryModule,
   ],
+  providers: [CustomLogger],
+  exports: [CustomLogger],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggingMiddleware).forRoutes('*');
+  }
+}
