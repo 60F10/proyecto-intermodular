@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
+import { Card, Input, Button } from '../../components/ui'
 
 function LoginPage() {
     const navigate = useNavigate()
@@ -8,13 +9,35 @@ function LoginPage() {
         username: '',
         password: ''
     })
+    const [errors, setErrors] = useState({})
+    const [isLoading, setIsLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        // TODO: Implementar lógica de autenticación
-        console.log('Login attempt:', formData)
-        // Placeholder: navegar a home después de login exitoso
-        // navigate('/')
+
+        // Validación simple
+        const newErrors = {}
+        if (!formData.username) {
+            newErrors.username = 'El usuario es obligatorio'
+        }
+        if (!formData.password) {
+            newErrors.password = 'La contraseña es obligatoria'
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
+        }
+
+        setIsLoading(true)
+        setErrors({})
+
+        // TODO: Implementar lógica de autenticación con backend
+        setTimeout(() => {
+            console.log('Login attempt:', formData)
+            setIsLoading(false)
+            // navigate('/')
+        }, 2000)
     }
 
     const handleChange = (e) => {
@@ -22,79 +45,72 @@ function LoginPage() {
             ...formData,
             [e.target.name]: e.target.value
         })
+        // Limpiar error del campo cuando el usuario empieza a escribir
+        if (errors[e.target.name]) {
+            setErrors({
+                ...errors,
+                [e.target.name]: undefined
+            })
+        }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cifp-blue-light/20 via-white to-cifp-red-light/10 px-4">
             <div className="max-w-md w-full space-y-8">
                 {/* Logo y título */}
                 <div className="text-center">
-                    <div className="mx-auto h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center">
-                        <LogIn className="h-8 w-8 text-white" />
+                    <div className="mx-auto h-20 w-20 bg-gradient-to-br from-cifp-blue to-cifp-blue-dark rounded-full flex items-center justify-center shadow-lg">
+                        <LogIn className="h-10 w-10 text-white" />
                     </div>
-                    <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+                    <h2 className="mt-6 text-3xl font-extrabold text-cifp-neutral-900">
                         Sistema Lovelace
                     </h2>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-cifp-neutral-600">
                         CIFP Virgen de Candelaria
                     </p>
                 </div>
 
                 {/* Formulario de login */}
-                <div className="bg-white shadow-xl rounded-lg px-8 py-10">
+                <Card className="shadow-xl">
                     <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label
-                                htmlFor="username"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Usuario
-                            </label>
-                            <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                required
-                                value={formData.username}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Ingresa tu usuario"
-                            />
-                        </div>
+                        <Input
+                            id="username"
+                            name="username"
+                            type="text"
+                            label="Usuario"
+                            placeholder="Ingresa tu usuario"
+                            value={formData.username}
+                            onChange={handleChange}
+                            error={errors.username}
+                            required
+                        />
 
-                        <div>
-                            <label
-                                htmlFor="password"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Contraseña
-                            </label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                placeholder="Ingresa tu contraseña"
-                            />
-                        </div>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            label="Contraseña"
+                            placeholder="Ingresa tu contraseña"
+                            value={formData.password}
+                            onChange={handleChange}
+                            error={errors.password}
+                            required
+                        />
 
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                            >
-                                <LogIn className="h-4 w-4" />
-                                Iniciar Sesión
-                            </button>
-                        </div>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            isLoading={isLoading}
+                            className="w-full"
+                        >
+                            <LogIn className="h-4 w-4" />
+                            {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                        </Button>
                     </form>
-                </div>
+                </Card>
 
                 {/* Información adicional */}
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-sm text-cifp-neutral-600">
                     <p>¿Problemas para acceder? Contacta al administrador.</p>
                 </div>
             </div>
