@@ -1,8 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthModule } from './features/health/health.module';
 import { AuthModule } from './features/auth/auth.module';
+import { HttpLoggingMiddleware } from './common/logger/http-logging.middleware';
+import { CustomLogger } from './common/logger/custom.logger';
 
 @Module({
   imports: [
@@ -28,5 +30,11 @@ import { AuthModule } from './features/auth/auth.module';
     HealthModule,
     AuthModule,
   ],
+  providers: [CustomLogger],
+  exports: [CustomLogger],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggingMiddleware).forRoutes('*');
+  }
+}

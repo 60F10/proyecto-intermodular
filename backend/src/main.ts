@@ -3,9 +3,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { CustomLogger } from './common/logger/custom.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Crear instancia del logger personalizado
+  const customLogger = new CustomLogger();
+
+  const app = await NestFactory.create(AppModule, {
+    logger: customLogger,
+  });
 
   // Configurar CORS
   app.enableCors({
@@ -58,7 +64,17 @@ async function bootstrap() {
 
   const port = process.env.APP_PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`);
-  console.log(`Swagger documentation available at: ${await app.getUrl()}/docs`);
+  console.log(JSON.stringify({
+    level: 'INFO',
+    timestamp: new Date().toISOString(),
+    context: 'Bootstrap',
+    message: `Application is running on: http://localhost:${port}/api`,
+  }));
+  console.log(JSON.stringify({
+    level: 'INFO',
+    timestamp: new Date().toISOString(),
+    context: 'Bootstrap',
+    message: `Swagger documentation available at: http://localhost:${port}/api/docs`,
+  }));
 }
 bootstrap();
