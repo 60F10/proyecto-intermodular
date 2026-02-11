@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { QueryFailedError } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeliveryNote, DeliveryStatus } from './entities/delivery-note.entity';
@@ -63,7 +64,18 @@ export class DeliveryNotesService {
 
   async create(createDto: CreateDeliveryNoteDto): Promise<DeliveryNote> {
     const note = this.deliveryNotesRepository.create(createDto);
-    return this.deliveryNotesRepository.save(note);
+    try {
+      return await this.deliveryNotesRepository.save(note);
+    } catch (err) {
+      // Handle unique constraint violation for numero_remito (Postgres code 23505)
+      if (err instanceof QueryFailedError || (err && (err as any).code)) {
+        const code = (err as any).code || (err as any).driverError?.code;
+        if (code === '23505') {
+          throw new ConflictException('numeroRemito already exists');
+        }
+      }
+      throw err;
+    }
   }
 
   async update(

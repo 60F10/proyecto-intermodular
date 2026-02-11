@@ -24,4 +24,6 @@ export class HealthController {
     const result = await this.dataSource.query('SELECT 1 as ok');
     return { db: 'up', result };
   }
+
+  
 }
