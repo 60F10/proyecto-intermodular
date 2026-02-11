@@ -1,14 +1,17 @@
 import {
-    Controller,
-    Get,
-    Param,
-    ParseUUIDPipe,
-    UseInterceptors,
-    ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  Patch,
+  Body,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -52,5 +55,22 @@ export class UsersController {
         @Param('id', new ParseUUIDPipe()) id: string,
     ): Promise<User> {
         return this.usersService.findOne(id);
+    }
+
+    /**
+     * PATCH /users/:id
+     * Actualiza un usuario (campos parciales)
+     */
+    @ApiOperation({ summary: 'Actualizar usuario por ID (parcial)' })
+    @ApiResponse({ status: 200, description: 'Usuario actualizado', type: User })
+    @ApiResponse({ status: 400, description: 'Datos inválidos' })
+    @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+    @ApiResponse({ status: 409, description: 'Email ya en uso' })
+    @Patch(':id')
+    async update(
+      @Param('id', new ParseUUIDPipe()) id: string,
+      @Body() dto: UpdateUserDto,
+    ): Promise<User> {
+      return this.usersService.update(id, dto as Partial<User>)
     }
 }
