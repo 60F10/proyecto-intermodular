@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User, Lock } from 'lucide-react'
 import { Card, Input, Button } from '../../components/ui'
+import { useAuth } from '../../contexts/AuthProvider'
 import logoImg from '../../assets/logo_cifp.png'
 import fondoImg from '../../assets/FondoLogin.png'
 
 function LoginPage() {
     const navigate = useNavigate()
+    const auth = useAuth()
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: ''
     })
     const [errors, setErrors] = useState({})
@@ -19,8 +21,8 @@ function LoginPage() {
 
         // Validación simple
         const newErrors = {}
-        if (!formData.username) {
-            newErrors.username = 'El usuario es obligatorio'
+        if (!formData.email) {
+            newErrors.email = 'El email es obligatorio'
         }
         if (!formData.password) {
             newErrors.password = 'La contraseña es obligatoria'
@@ -35,17 +37,12 @@ function LoginPage() {
         setErrors({})
 
         try {
-            // TODO: Implementar lógica de autenticación con backend
-            // Simulación de llamada API
-            await new Promise(resolve => setTimeout(resolve, 2000))
-
-            console.log('Login exitoso:', formData)
-
-            // Redirigir al dashboard
+            // Use auth context to login (will store token and fetch profile)
+            await auth.login({ email: formData.email, password: formData.password })
             navigate('/dashboard')
         } catch (error) {
             console.error('Error en login:', error)
-            setErrors({ general: 'Error al iniciar sesión. Inténtalo de nuevo.' })
+            setErrors({ general: error?.message || 'Error al iniciar sesión. Inténtalo de nuevo.' })
         } finally {
             setIsLoading(false)
         }
@@ -101,15 +98,15 @@ function LoginPage() {
                             )}
 
                             <Input
-                                id="username"
-                                name="username"
-                                type="text"
-                                label="Usuario"
-                                placeholder="Ingresa tu usuario"
+                                id="email"
+                                name="email"
+                                type="email"
+                                label="Email"
+                                placeholder="Ingresa tu email"
                                 icon={User}
-                                value={formData.username}
+                                value={formData.email}
                                 onChange={handleChange}
-                                error={errors.username}
+                                error={errors.email}
                                 required
                             />
 
@@ -128,13 +125,13 @@ function LoginPage() {
 
                             {/* Enlace de ayuda centrado */}
                             <div className="text-center">
-                                <a
-                                    href="#"
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/recover')}
                                     className="text-sm text-cifp-blue hover:text-cifp-blue-dark transition-colors inline-block"
-                                    onClick={(e) => e.preventDefault()}
                                 >
                                     ¿Problemas con el usuario o la clave?
-                                </a>
+                                </button>
                             </div>
 
                             <Button
