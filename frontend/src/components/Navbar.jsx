@@ -12,8 +12,8 @@ const items = [
 
 export default function Navbar() {
   return (
-    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 place-items-center">
+    <nav className="w-full px-4 sm:px-6 lg:px-8 py-6 flex justify-center">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 place-items-center w-full max-w-4xl">
         {items.map((it) => {
           const Icon = it.icon
           return (
