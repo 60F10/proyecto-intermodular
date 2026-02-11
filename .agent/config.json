@@ -1,0 +1,12 @@
+{
+  "project_name": "proyecto-intermodular",
+  "version": "1.0.0",
+  "agent_settings": {
+    "primary_language": "spanish",
+    "technical_stack": ["NestJS", "React", "TypeScript", "PostgreSQL", "TailwindCSS", "Vite"],
+    "conventions": {
+      "commit_message_style": "Conventional Commits",
+      "branch_naming": "feature/feature-name"
+    }
+  }
+}
