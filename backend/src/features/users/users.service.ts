@@ -63,4 +63,15 @@ export class UsersService {
       select: ['id', 'email', 'passwordHash', 'role', 'isActive', 'nombre'],
     });
   }
+
+  /**
+   * Actualiza el hash de contraseña para un usuario identificado por email
+   */
+  async updatePasswordByEmail(email: string, passwordHash: string): Promise<void> {
+    const user = await this.usersRepository.findOne({ where: { email } })
+    if (!user) {
+      throw new NotFoundException(`Usuario con email ${email} no encontrado`)
+    }
+    await this.usersRepository.update({ email }, { passwordHash })
+  }
 }

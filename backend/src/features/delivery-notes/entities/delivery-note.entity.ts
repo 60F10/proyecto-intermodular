@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum DeliveryStatus {
@@ -21,11 +23,15 @@ export class DeliveryNote {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true, name: 'numero_remito' })
   numeroRemito: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'pedido_id' })
   pedidoId: string;
+
+  @ManyToOne('Order', 'deliveryNotes', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'pedido_id' })
+  pedido: any;
 
   @Column({
     type: 'enum',
@@ -37,10 +43,10 @@ export class DeliveryNote {
   @Column({ type: 'varchar', length: 255 })
   transportista: string;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'numero_tracking' })
   numeroTracking: string | null;
 
-  @Column({ type: 'timestamptz', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true, name: 'fecha_entrega' })
   fechaEntrega: Date | null;
 
   @Column({ type: 'text', nullable: true })

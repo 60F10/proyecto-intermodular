@@ -49,6 +49,7 @@ export default function RecoverPage() {
     try {
       window.close()
     } catch (e) { }
+    } catch (e) {}
     navigate('/login')
   }
 
@@ -81,6 +82,33 @@ export default function RecoverPage() {
                 <p className="text-center text-xs sm:text-sm">Ingresa un correo electrónico válido</p>
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-800 px-2 py-1 sm:px-4 sm:py-3 rounded-lg text-xs sm:text-sm">{error}</div>
+      className="min-h-screen flex items-center justify-center md:justify-end bg-cover bg-center px-4 py-8"
+      style={{ backgroundImage: `url(${fondoImg})` }}
+    >
+      <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl md:mr-24">
+        <Card className="relative shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cifp-red via-cifp-blue to-cifp-red"></div>
+          <div className="pt-8 pb-6 px-8">
+            <div className="flex justify-center mb-4">
+              <img src={logoImg} alt="Logo" className="h-20 w-auto object-contain" />
+            </div>
+
+            <h2 className="text-xl font-bold text-center mb-4">Recuperar cuenta</h2>
+
+            {message ? (
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+                  {message}
+                </div>
+                <div className="text-center">
+                  <Button variant="corporate" onClick={handleBack}>Volver al login</Button>
+                </div>
+              </div>
+            ) : (
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <p className="text-center text-sm">Ingresa un correo electrónico válido</p>
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">{error}</div>
                 )}
 
                 <Input
@@ -99,6 +127,11 @@ export default function RecoverPage() {
                     Enviar
                   </Button>
                   <Button variant="ghost" onClick={handleBack} className="text-xs sm:text-base py-2 sm:py-3">Volver</Button>
+                <div className="flex items-center justify-between">
+                  <Button type="submit" variant="corporate" isLoading={isLoading} disabled={isLoading || !email}>
+                    Enviar
+                  </Button>
+                  <Button variant="ghost" onClick={handleBack}>Volver</Button>
                 </div>
               </form>
             )}

@@ -129,6 +129,7 @@ function LoginPage() {
                                     type="button"
                                     onClick={() => navigate('/recover')}
                                     className="text-xs sm:text-sm text-cifp-blue hover:text-cifp-blue-dark transition-colors inline-block"
+                                    className="text-sm text-cifp-blue hover:text-cifp-blue-dark transition-colors inline-block"
                                 >
                                     ¿Problemas con el usuario o la clave?
                                 </button>

@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -54,15 +54,22 @@ async function bootstrap() {
     useGlobalPrefix: true,
   });
 
-  // Activamos el Pipe de validación global
+  // Activamos el Pipe de validación global CON transformación
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,       // Elimina propiedades del body que no estén en el DTO
-      forbidNonWhitelisted: true, // Devuelve error si envían propiedades extra
+      forbidNonWhitelisted: false, // CAMBIAR A FALSE para permitir validación sin error
       transform: true,       // Transforma los tipos automáticamente (ej. string a number)
-      transformOptions: { enableImplicitConversion: true }, // Conversión implícita de tipos
+      transformOptions: { 
+        enableImplicitConversion: true,
+        exposeDefaultValues: true,
+      }, // Conversión implícita de tipos
     }),
   );
+
+  // Agregar interceptor de serialización global
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 
   const port = process.env.APP_PORT || 3000;
   await app.listen(port);

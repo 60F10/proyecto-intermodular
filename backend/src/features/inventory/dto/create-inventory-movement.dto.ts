@@ -1,12 +1,14 @@
-import { IsString, IsNumber, IsUUID, IsOptional, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, Matches, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateInventoryMovementDto {
   @ApiProperty({
     example: '123e4567-e89b-12d3-a456-426614174000',
     description: 'UUID del producto',
   })
-  @IsUUID()
+  @Matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)
+  @Transform(({ obj }) => obj.productoId ?? obj.producto_id)
   productoId: string;
 
   @ApiProperty({
@@ -32,7 +34,8 @@ export class CreateInventoryMovementDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID()
+  @Matches(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)
+  @Transform(({ obj }) => obj.usuarioId ?? obj.usuario_id)
   usuarioId?: string;
 
   @ApiProperty({

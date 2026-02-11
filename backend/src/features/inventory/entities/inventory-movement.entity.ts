@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 export enum InventoryMovementType {
@@ -22,8 +24,12 @@ export class InventoryMovement {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', name: 'producto_id' })
   productoId: string;
+
+  @ManyToOne('Product', 'inventoryMovements', { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'producto_id' })
+  producto: any;
 
   @Column({
     type: 'enum',
@@ -37,7 +43,7 @@ export class InventoryMovement {
   @Column({ type: 'text', nullable: true })
   motivo: string | null;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid', nullable: true, name: 'usuario_id' })
   usuarioId: string | null;
 
   @Column({ type: 'text', nullable: true })
