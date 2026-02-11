@@ -61,7 +61,10 @@ export default function Header() {
                 className="w-full text-left px-4 py-2 hover:bg-cifp-neutral-50 flex items-center gap-2"
                 onClick={() => { toggleTheme(); setOpen(false) }}
               >
-                <Sun className="w-4 h-4" /> Modo claro/oscuro
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cifp-neutral-100 mr-2">
+                  <Sun className="w-4 h-4 text-cifp-red" />
+                </span>
+                Modo claro/oscuro
               </button>
 
               <button

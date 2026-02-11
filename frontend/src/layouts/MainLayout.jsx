@@ -6,7 +6,7 @@ import fondoImg from '../assets/FondoLogin.png'
 
 function MainLayout() {
   return (
-    <div className="min-h-screen flex flex-col bg-cifp-neutral-50 relative" style={{ backgroundImage: `url(${fondoImg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen flex flex-col bg-cifp-neutral-50 relative" style={{ backgroundImage: `url(${fondoImg})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}>
       {/* overlay to reduce prominence of background for dashboard */}
       <div className="absolute inset-0 bg-white/70 dark:bg-black/40 pointer-events-none"></div>
 

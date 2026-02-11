@@ -13,7 +13,7 @@ const Input = forwardRef(({
 
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
 
-    const baseStyles = 'block w-full py-2 border rounded-lg shadow-sm transition-all duration-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0'
+    const baseStyles = 'block w-full py-2 text-base border rounded-lg shadow-sm transition-all duration-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-0'
 
     const paddingStyles = Icon ? 'pl-10 pr-3' : 'px-3'
 

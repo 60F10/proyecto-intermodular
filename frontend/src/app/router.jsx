@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
+import ProfilePage from '../features/profile/ProfilePage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
 import RecoverPage from '../features/auth/RecoverPage'
@@ -18,6 +19,7 @@ function AppRouter() {
             <Route path="/" element={<RequireAuth><MainLayout /></RequireAuth>}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="profile" element={<ProfilePage />} />
             </Route>
 
             {/* Ruta por defecto */}
