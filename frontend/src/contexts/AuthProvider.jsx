@@ -43,12 +43,27 @@ export function AuthProvider({ children }) {
     throw new Error('No access token returned')
   }
 
+  const register = async ({ email, password, nombre, apellido1, apellido2 }) => {
+    const data = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        nombre,
+        apellido1,
+        ...(apellido2 && { apellido2 })
+      }),
+    })
+    return data
+  }
+
   const logout = () => {
     clearToken()
     setUser(null)
     navigate('/login')
   }
 
+  const value = { user, login, register, logout, loading, isAuthenticated: !!user }
   const value = { user, login, logout, loading, isAuthenticated: !!user }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
