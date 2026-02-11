@@ -1,5 +1,9 @@
 -- scripts/db/002_seed.sql
 -- Seed inicial - Proyecto Intermodular Lovelace
+-- NOTA: Contraseñas hasheadas con bcrypt (salt rounds: 10)
+-- - admin@lovelace.edu → password: Admin2024!
+-- - carlos.ruiz@lovelace.edu → password: Profesor2024!
+-- - maria.garcia@lovelace.edu → password: Alumno2024!
 
 BEGIN;
 
@@ -7,166 +11,190 @@ BEGIN;
 -- USUARIOS
 -- =========================
 
--- SUPERADMIN (Jefe Economato)
-INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
-VALUES (
-  '11111111-1111-1111-1111-111111111111',
-  'jefe@lovelace.local',
-  'hash_superadmin',
-  'SUPERADMIN',
-  'Jefe',
-  'Economato'
-)
-ON CONFLICT DO NOTHING;
-
--- ADMIN (Profesor)
-INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
-VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  'profe@lovelace.local',
-  'hash_admin',
-  'ADMIN',
-  'Profesor',
-  'Cocina'
-)
-ON CONFLICT DO NOTHING;
-
--- USER (Alumno)
-INSERT INTO users (id, email, password_hash, role, nombre, apellido1)
-VALUES (
-  '33333333-3333-3333-3333-333333333333',
-  'alumno@lovelace.local',
-  'hash_user',
-  'USER',
-  'Alumno',
-  'Primero'
-)
-ON CONFLICT DO NOTHING;
-
--- =========================
--- ESTUDIOS Y CLASES
--- =========================
-
-INSERT INTO studies (id, name)
+INSERT INTO users (id, email, password_hash, role, nombre, apellido1, apellido2, is_active)
 VALUES
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Cocina'),
-  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Pastelería')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO classes (id, level, group_code, study_id)
-VALUES
-  ('cccccccc-cccc-cccc-cccc-cccccccccccc', '1º CFGM', 'A', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-  ('dddddddd-dddd-dddd-dddd-dddddddddddd', '2º CFGM', 'B', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')
-ON CONFLICT DO NOTHING;
-
--- Alumno asignado a una clase
-INSERT INTO student_profile (user_id, class_id)
-VALUES (
-  '33333333-3333-3333-3333-333333333333',
-  'cccccccc-cccc-cccc-cccc-cccccccccccc'
-)
-ON CONFLICT DO NOTHING;
-
--- Profesor asignado a clases
-INSERT INTO teacher_class (teacher_id, class_id)
-VALUES
-  ('22222222-2222-2222-2222-222222222222', 'cccccccc-cccc-cccc-cccc-cccccccccccc'),
-  ('22222222-2222-2222-2222-222222222222', 'dddddddd-dddd-dddd-dddd-dddddddddddd')
-ON CONFLICT DO NOTHING;
-
--- =========================
--- PROVEEDORES
--- =========================
-
-INSERT INTO suppliers (id, name)
-VALUES
-  ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', 'Proveedor Alimentación SL'),
-  ('ffffffff-ffff-ffff-ffff-ffffffffffff', 'Proveedor Material Hostelería')
-ON CONFLICT DO NOTHING;
-
--- =========================
--- CATEGORÍAS
--- =========================
-
-INSERT INTO categories (id, name, product_type)
-VALUES
-  ('11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Verduras', 'INGREDIENT'),
-  ('22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Carnes', 'INGREDIENT'),
-  ('33333333-cccc-cccc-cccc-cccccccccccc', 'Utensilios', 'MATERIAL')
+  (
+    '11111111-1111-1111-1111-111111111111',
+    'admin@lovelace.edu',
+    '$2b$10$OeE.t0J7lBWWgT/R66rVn.aj/jWpWUmU1tvyLkvrizFt7Ab.XfSk2',
+    'SUPERADMIN',
+    'Ana',
+    'Martínez',
+    'López',
+    true
+  ),
+  (
+    '22222222-2222-2222-2222-222222222222',
+    'carlos.ruiz@lovelace.edu',
+    '$2b$10$jWKDzUVCXtQuuYbVjUy5ne0v2hO.XXYiHKWtlyEllhjnBeb7LAMK6',
+    'ADMIN',
+    'Carlos',
+    'Ruiz',
+    'Fernández',
+    true
+  ),
+  (
+    '33333333-3333-3333-3333-333333333333',
+    'maria.garcia@lovelace.edu',
+    '$2b$10$KTGr8RHBLLEJtSSAvHS0n.d/DoRIOIpO5RJk0b9o0670cS7lesjGC',
+    'USER',
+    'María',
+    'García',
+    'Sánchez',
+    true
+  )
 ON CONFLICT DO NOTHING;
 
 -- =========================
 -- PRODUCTOS
 -- =========================
 
--- Ingrediente con caducidad
 INSERT INTO products (
-  id, code, name, product_type, unit_type, unit_price,
-  supplier_id, category_id, yield_percent, expires_at, created_by
+  id, nombre, descripcion, sku, precio, stock, categoria, activo
 )
-VALUES (
-  '99999999-1111-1111-1111-111111111111',
-  'IN_0001',
-  'Patatas',
-  'INGREDIENT',
-  'KG',
-  0.80,
-  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-  '11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  85,
-  '2026-06-01',
-  '22222222-2222-2222-2222-222222222222'
-)
-ON CONFLICT DO NOTHING;
-
--- Ingrediente sin caducidad (ejemplo)
-INSERT INTO products (
-  id, code, name, product_type, unit_type, unit_price,
-  supplier_id, category_id, yield_percent, expires_at, created_by
-)
-VALUES (
-  '99999999-2222-2222-2222-222222222222',
-  'IN_0002',
-  'Sal fina',
-  'INGREDIENT',
-  'KG',
-  0.30,
-  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-  '11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-  100,
-  NULL,
-  '22222222-2222-2222-2222-222222222222'
-)
-ON CONFLICT DO NOTHING;
-
--- Material (sin caducidad)
-INSERT INTO products (
-  id, code, name, product_type, unit_type, unit_price,
-  supplier_id, category_id, expires_at, created_by
-)
-VALUES (
-  '99999999-3333-3333-3333-333333333333',
-  'MA_0001',
-  'Cuchillo profesional',
-  'MATERIAL',
-  'UNIDAD',
-  25.00,
-  'ffffffff-ffff-ffff-ffff-ffffffffffff',
-  '33333333-cccc-cccc-cccc-cccccccccccc',
-  NULL,
-  '22222222-2222-2222-2222-222222222222'
-)
-ON CONFLICT DO NOTHING;
-
--- =========================
--- INVENTARIO INICIAL
--- =========================
-
-INSERT INTO inventory (product_id, current_qty)
 VALUES
-  ('99999999-1111-1111-1111-111111111111', 50),
-  ('99999999-2222-2222-2222-222222222222', 10),
-  ('99999999-3333-3333-3333-333333333333', 5)
+  (
+    '99999999-1111-1111-1111-111111111111',
+    'Patata Agria (Nacional)',
+    'Patata para freír, calibre medio',
+    'VER-001',
+    1.25,
+    75,
+    'Verduras y Hortalizas',
+    true
+  ),
+  (
+    '99999999-2222-2222-2222-222222222222',
+    'Cebolla Dulce',
+    'Cebolla dulce para sofritos',
+    'VER-002',
+    0.95,
+    35,
+    'Verduras y Hortalizas',
+    true
+  ),
+  (
+    '99999999-3333-3333-3333-333333333333',
+    'Tomate Rama',
+    'Tomate fresco de temporada',
+    'VER-003',
+    2.35,
+    22,
+    'Verduras y Hortalizas',
+    true
+  ),
+  (
+    '99999999-4444-4444-4444-444444444444',
+    'Pechuga de Pollo (Fileteada)',
+    'Pechuga de pollo limpia y fileteada',
+    'CAR-001',
+    7.85,
+    18,
+    'Carnes y Aves',
+    true
+  ),
+  (
+    '99999999-5555-5555-5555-555555555555',
+    'Ternera (Solomillo)',
+    'Solomillo de ternera',
+    'CAR-002',
+    12.50,
+    8,
+    'Carnes y Aves',
+    true
+  ),
+  (
+    '99999999-6666-6666-6666-666666666666',
+    'Leche Fresca Completa (Litro)',
+    'Leche fresca de vaca',
+    'LAC-001',
+    1.50,
+    45,
+    'Lácteos y Derivados',
+    true
+  ),
+  (
+    '99999999-7777-7777-7777-777777777777',
+    'Mantequilla sin Sal',
+    'Mantequilla natural',
+    'LAC-002',
+    3.25,
+    12,
+    'Lácteos y Derivados',
+    true
+  ),
+  (
+    '99999999-8888-8888-8888-888888888888',
+    'Aceite de Oliva Virgen Extra',
+    'Aceite de primera presión',
+    'ACE-001',
+    8.50,
+    15,
+    'Aceites y Condimentos',
+    true
+  ),
+  (
+    '99999999-9999-9999-9999-999999999999',
+    'Sal Marina Fina',
+    'Sal de mar refinada',
+    'ACE-002',
+    0.60,
+    25,
+    'Aceites y Condimentos',
+    true
+  ),
+  (
+    '99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'Cuchillo Chef 20cm Profesional',
+    'Cuchillo para truculenias',
+    'UTE-001',
+    35.90,
+    8,
+    'Utensilios de Cocina',
+    true
+  ),
+  (
+    '99999999-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'Tabla de Corte Polietileno (Grande)',
+    'Tabla de corte higiénica',
+    'UTE-002',
+    18.75,
+    12,
+    'Utensilios de Cocina',
+    true
+  ),
+  (
+    '99999999-cccc-cccc-cccc-cccccccccccc',
+    'Batidora de Varillas Eléctrica',
+    'Batidora eléctrica profesional',
+    'UTE-003',
+    125.00,
+    3,
+    'Utensilios de Cocina',
+    true
+  )
+ON CONFLICT DO NOTHING;
+
+-- =========================
+-- MOVIMIENTOS DE INVENTARIO
+-- =========================
+
+INSERT INTO inventory_movements (
+  id, producto_id, tipo, cantidad, motivo, usuario_id, observaciones
+)
+VALUES
+  (uuid_generate_v4(), '99999999-1111-1111-1111-111111111111', 'ENTRY', 75, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-2222-2222-2222-222222222222', 'ENTRY', 35, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-3333-3333-3333-333333333333', 'ENTRY', 22, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-4444-4444-4444-444444444444', 'ENTRY', 18, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-5555-5555-5555-555555555555', 'ENTRY', 8, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-6666-6666-6666-666666666666', 'ENTRY', 45, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-7777-7777-7777-777777777777', 'ENTRY', 12, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-8888-8888-8888-888888888888', 'ENTRY', 15, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-9999-9999-9999-999999999999', 'ENTRY', 25, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'ENTRY', 8, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'ENTRY', 12, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL),
+  (uuid_generate_v4(), '99999999-cccc-cccc-cccc-cccccccccccc', 'ENTRY', 3, 'Stock inicial', '11111111-1111-1111-1111-111111111111', NULL)
 ON CONFLICT DO NOTHING;
 
 COMMIT;

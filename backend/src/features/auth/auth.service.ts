@@ -1,15 +1,18 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RecoverDto } from './dto/recover.dto';
+import MailService from '../../common/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   /**
@@ -56,5 +59,41 @@ export class AuthService {
    */
   async register(registrationData: RegisterDto) {
     return this.usersService.create(registrationData);
+  }
+
+  /**
+   * Genera una clave provisional, la guarda (hash) y simula el envío por correo
+   */
+  async recover(recoverDto: RecoverDto) {
+    const { email } = recoverDto
+
+    const user = await this.usersService.findByEmail(email)
+    if (!user) {
+      // No revelar si el email no existe en la respuesta pública
+      throw new NotFoundException('No se encontró el email')
+    }
+
+    // Generar contraseña provisional aleatoria
+    const provisional = Math.random().toString(36).slice(-10)
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(provisional, salt)
+
+    // Actualizar el hash en la base de datos
+    await this.usersService.updatePasswordByEmail(email, hash)
+
+    // Intentar enviar correo real; si falla, hacemos log para desarrollo
+    try {
+      const subject = 'Recuperación de cuenta - Lovelace'
+      const text = `Hola,\n\nSe ha solicitado la recuperación de la cuenta.\nUsuario: ${user.email}\nClave provisional: ${provisional}\n\nPor favor, inicia sesión y cambia tu contraseña.`
+      const html = `<p>Hola,</p><p>Se ha solicitado la recuperación de la cuenta.</p><ul><li><strong>Usuario:</strong> ${user.email}</li><li><strong>Clave provisional:</strong> ${provisional}</li></ul><p>Por favor, inicia sesión y cambia tu contraseña.</p>`
+
+      await this.mailService.sendMail(user.email, subject, text, html)
+    } catch (err) {
+      // Si el envío falla, lo registramos para revisión
+      const logger = new Logger('AuthService')
+      logger.warn('Envío de correo falló: ' + (err?.message || err))
+    }
+
+    return { message: 'Si el email existe, se ha enviado un correo con instrucciones' }
   }
 }

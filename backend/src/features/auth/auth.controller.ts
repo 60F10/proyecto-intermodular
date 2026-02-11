@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RecoverDto } from './dto/recover.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -46,6 +47,13 @@ export class AuthController {
     @Post('register')
     async register(@Body() registerDto: RegisterDto) {
       return this.authService.register(registerDto);
+    }
+
+    @ApiOperation({ summary: 'Recuperar cuenta por email' })
+    @ApiResponse({ status: 200, description: 'Se ha enviado email de recuperación (si existe)' })
+    @Post('recover')
+    async recover(@Body() recoverDto: RecoverDto) {
+      return this.authService.recover(recoverDto)
     }
 
     @ApiBearerAuth('jwt')

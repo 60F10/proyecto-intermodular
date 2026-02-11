@@ -13,7 +13,7 @@ import {
   ClassSerializerInterceptor,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -69,6 +69,7 @@ export class ProductsController {
     description: 'Producto creado',
     type: Product,
   })
+  @ApiBearerAuth('jwt')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Post()
@@ -82,6 +83,7 @@ export class ProductsController {
     description: 'Producto actualizado',
     type: Product,
   })
+  @ApiBearerAuth('jwt')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Put(':id')
@@ -93,6 +95,7 @@ export class ProductsController {
   }
 
   @ApiOperation({ summary: 'Actualizar stock del producto (ADMIN)' })
+  @ApiBearerAuth('jwt')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Patch(':id/stock')
@@ -104,6 +107,7 @@ export class ProductsController {
   }
 
   @ApiOperation({ summary: 'Desactivar producto (ADMIN)' })
+  @ApiBearerAuth('jwt')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   @Patch(':id/deactivate')
@@ -114,6 +118,7 @@ export class ProductsController {
   }
 
   @ApiOperation({ summary: 'Eliminar producto (SUPERADMIN)' })
+  @ApiBearerAuth('jwt')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN)
   @Delete(':id')
