@@ -19,17 +19,31 @@ export class AuthService {
    * Valida que el usuario existe y la contraseña coincide
    */
   async validateUser(email: string, pass: string): Promise<any> {
+    const logger = new Logger('AuthService')
     const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      logger.warn(`validateUser: user not found for email=${email}`)
+      return null
+    }
 
-    if (user && user.isActive) {
-      // Comparación real con bcryptjs
+    if (!user.isActive) {
+      logger.warn(`validateUser: user found but inactive email=${email}`)
+      return null
+    }
+
+    // Comparación real con bcryptjs
+    try {
       const isMatch = await bcrypt.compare(pass, user.passwordHash);
+      logger.log(`validateUser: bcrypt.compare result=${isMatch} for email=${email}`)
       if (isMatch) {
         // Extraemos passwordHash para no devolverlo jamás
         const { passwordHash, ...result } = user;
         return result;
       }
+    } catch (err) {
+      logger.error(`validateUser: bcrypt.compare error for email=${email} - ${err?.message || err}`)
     }
+
     return null;
   }
 

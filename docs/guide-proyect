@@ -104,6 +104,12 @@ docker exec -it lovelace_db psql -U lovelace -d lovelace
 
 docker exec -it lovelace_db psql -U lovelace -d lovelace -c "select * from users"
 
+### Users
+
+admin@lovelace.edu — SuperAdmin2026!
+carlos.ruiz@lovelace.edu — Admin2026!
+maria.garcia@lovelace.edu — Usuario2026!
+
 ### Comandos útiles dentro de psql:
 
 \dt              -- listar tablas

@@ -1,9 +1,10 @@
 -- scripts/db/002_seed.sql
 -- Seed inicial - Proyecto Intermodular Lovelace
--- NOTA: Contraseñas hasheadas con bcrypt (salt rounds: 10)
--- - admin@lovelace.edu → password: Admin2024!
--- - carlos.ruiz@lovelace.edu → password: Profesor2024!
--- - maria.garcia@lovelace.edu → password: Alumno2024!
+-- NOTA: Contraseñas hasheadas en el propio servidor usando pgcrypto/crypt
+-- Credenciales nuevas para desarrollo:
+-- - admin@lovelace.edu      → password: SuperAdmin2026!
+-- - carlos.ruiz@lovelace.edu → password: Admin2026!
+-- - maria.garcia@lovelace.edu → password: Usuario2026!
 
 BEGIN;
 
@@ -16,7 +17,7 @@ VALUES
   (
     '11111111-1111-1111-1111-111111111111',
     'admin@lovelace.edu',
-    '$2b$10$OeE.t0J7lBWWgT/R66rVn.aj/jWpWUmU1tvyLkvrizFt7Ab.XfSk2',
+    crypt('SuperAdmin2026!', gen_salt('bf', 10)),
     'SUPERADMIN',
     'Ana',
     'Martínez',
@@ -26,7 +27,7 @@ VALUES
   (
     '22222222-2222-2222-2222-222222222222',
     'carlos.ruiz@lovelace.edu',
-    '$2b$10$jWKDzUVCXtQuuYbVjUy5ne0v2hO.XXYiHKWtlyEllhjnBeb7LAMK6',
+    crypt('Admin2026!', gen_salt('bf', 10)),
     'ADMIN',
     'Carlos',
     'Ruiz',
@@ -36,7 +37,7 @@ VALUES
   (
     '33333333-3333-3333-3333-333333333333',
     'maria.garcia@lovelace.edu',
-    '$2b$10$KTGr8RHBLLEJtSSAvHS0n.d/DoRIOIpO5RJk0b9o0670cS7lesjGC',
+    crypt('Usuario2026!', gen_salt('bf', 10)),
     'USER',
     'María',
     'García',
