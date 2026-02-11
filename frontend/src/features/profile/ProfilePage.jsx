@@ -216,15 +216,22 @@ export default function ProfilePage() {
       {tab === 'usuario' && (
         <Card>
           <div className="mb-4">
-            <div className="flex items-center gap-2">
-              {(myRole === ROLE_SUPER || myRole === ROLE_ADMIN) && (
-                <>
-                  <Input label="Buscar usuario (ID / email / nombre / dni)" value={targetId} onChange={(e) => setTargetId(e.target.value)} />
-                  <Button onClick={() => searchAndLoad(targetId)}>Buscar</Button>
-                </>
-              )}
-              <Button variant="ghost" onClick={() => loadMyProfile()}>Tu perfil</Button>
-            </div>
+            {(myRole === ROLE_SUPER || myRole === ROLE_ADMIN) ? (
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-cifp-neutral-900 mb-2 uppercase tracking-wide">Buscar usuario (ID / email / nombre / dni)</label>
+                  <div className="flex items-center gap-2">
+                    <Input value={targetId} onChange={(e) => setTargetId(e.target.value)} className="flex-1" />
+                    <Button onClick={() => searchAndLoad(targetId)}>Buscar</Button>
+                    <Button variant="secondary" onClick={() => loadMyProfile()}>Tu perfil</Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" onClick={() => loadMyProfile()}>Tu perfil</Button>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
