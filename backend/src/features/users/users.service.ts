@@ -74,4 +74,30 @@ export class UsersService {
     }
     await this.usersRepository.update({ email }, { passwordHash })
   }
+
+  /**
+   * Actualiza campos de un usuario por ID
+   */
+  async update(id: string, payload: Partial<User>): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } })
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`)
+    }
+
+    // Si se intenta cambiar el email, verificar conflicto
+    if (payload.email && payload.email !== user.email) {
+      const existing = await this.usersRepository.findOne({ where: { email: payload.email } })
+      if (existing && existing.id !== id) {
+        throw new ConflictException('El email ya está registrado')
+      }
+    }
+
+    // No permitimos actualizar passwordHash desde este método
+    if ((payload as any).passwordHash) {
+      delete (payload as any).passwordHash
+    }
+
+    await this.usersRepository.update({ id }, payload)
+    return this.findOne(id)
+  }
 }

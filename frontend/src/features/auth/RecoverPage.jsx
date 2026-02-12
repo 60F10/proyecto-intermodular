@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, Input, Button } from '../../components/ui'
+import { Mail } from 'lucide-react'
 import fondoImg from '../../assets/FondoLogin.png'
 import logoImg from '../../assets/logo_cifp.png'
 import apiFetch from '../../services/api'
@@ -86,6 +87,7 @@ export default function RecoverPage() {
                   name="email"
                   type="email"
                   label="Correo electrónico"
+                  icon={Mail}
                   placeholder="correo@ejemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

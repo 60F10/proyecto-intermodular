@@ -4,6 +4,7 @@ import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import IngredientsSummaryPage from '../features/ingredients/IngredientsSummaryPage'
 import IngredientsFullPage from '../features/ingredients/IngredientsFullPage'
+import ProfilePage from '../features/profile/ProfilePage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
 import RecoverPage from '../features/auth/RecoverPage'
@@ -22,6 +23,7 @@ function AppRouter() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="products" element={<IngredientsSummaryPage />} />
                 <Route path="products/full" element={<IngredientsFullPage />} />
+                <Route path="profile" element={<ProfilePage />} />
             </Route>
 
             {/* Ruta por defecto */}

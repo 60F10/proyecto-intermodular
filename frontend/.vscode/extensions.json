@@ -4,7 +4,6 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "dsznajder.es7-react-js-snippets",
-        "eamodio.gitlens",
         "formulahendry.auto-rename-tag",
         "christian-kohler.path-intellisense"
     ]

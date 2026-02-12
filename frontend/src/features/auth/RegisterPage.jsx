@@ -97,12 +97,12 @@ function RegisterPage() {
 
     return (
         <div
-            className="h-screen flex items-center justify-center bg-cover bg-center px-2 sm:px-4 py-2 sm:py-6 overflow-hidden"
+            className="h-screen flex items-center justify-center bg-cover bg-center px-2 sm:px-4 py-2 sm:py-6 overflow-auto"
             style={{ backgroundImage: `url(${fondoImg})` }}
         >
             <div className="w-[95%] sm:w-[90%] max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl">
                 {/* Card con animación de entrada y borde decorativo superior */}
-                <Card className="relative shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <Card className="relative shadow-2xl overflow-visible animate-in fade-in slide-in-from-bottom-8 duration-700">
                     {/* Borde decorativo superior con gradiente corporativo */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cifp-red via-cifp-blue to-cifp-red"></div>
 
@@ -132,7 +132,7 @@ function RegisterPage() {
                             )}
 
                             {/* Nombre y Apellidos en grid horizontal para kiosk, vertical en tablets+ */}
-                            <div className="grid grid-cols-3 sm:grid-cols-1 gap-1 sm:gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
                                 <Input
                                     id="nombre"
                                     name="nombre"
@@ -186,7 +186,7 @@ function RegisterPage() {
                             />
 
                             {/* Contraseñas en grid horizontal */}
-                            <div className="grid grid-cols-2 gap-1 sm:gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-4">
                                 <Input
                                     id="password"
                                     name="password"

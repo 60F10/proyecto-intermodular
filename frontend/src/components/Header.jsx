@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { User, Sun, LogOut, Menu } from 'lucide-react'
+import { User, Sun, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthProvider'
 import logoImg from '../assets/logo_cifp.png'
 
 export default function Header({ showMenuButton = false, onMenuClick }) {
+export default function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -24,6 +26,7 @@ export default function Header({ showMenuButton = false, onMenuClick }) {
     try {
       localStorage.setItem('theme', isDark ? 'dark' : 'light')
     } catch (e) { }
+    } catch (e) {}
   }
 
   return (
@@ -60,6 +63,7 @@ export default function Header({ showMenuButton = false, onMenuClick }) {
                 ? `${user.nombre} ${user.apellido1 || ''}`.trim()
                 : (user?.email || 'Usuario')}
             </span>
+            <span className="text-sm text-white">{user?.nombre || user?.email || 'Perfil'}</span>
           </button>
 
           {open && (
@@ -76,6 +80,10 @@ export default function Header({ showMenuButton = false, onMenuClick }) {
                 onClick={() => { toggleTheme(); setOpen(false) }}
               >
                 <Sun className="w-4 h-4" /> Modo claro/oscuro
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-cifp-neutral-100 mr-2">
+                  <Sun className="w-4 h-4 text-cifp-red" />
+                </span>
+                Modo claro/oscuro
               </button>
 
               <button
