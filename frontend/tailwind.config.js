@@ -31,9 +31,11 @@ export default {
             900: '#0F172A',  // Texto oscuro
           }
         }
+      },
+      screens: {
+        'short': { 'raw': '(max-height: 500px)' },
       }
     },
   },
   plugins: [require("tailwindcss-animate")],
 }
-

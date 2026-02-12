@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
+import IngredientsSummaryPage from '../features/ingredients/IngredientsSummaryPage'
+import IngredientsFullPage from '../features/ingredients/IngredientsFullPage'
 import ProfilePage from '../features/profile/ProfilePage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
@@ -19,6 +21,8 @@ function AppRouter() {
             <Route path="/" element={<RequireAuth><MainLayout /></RequireAuth>}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="products" element={<IngredientsSummaryPage />} />
+                <Route path="products/full" element={<IngredientsFullPage />} />
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
 
