@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { Users, Box, ClipboardList, Truck, Heart, Repeat } from 'lucide-react'
+import NavigationGrid from './NavigationGrid'
 
 const items = [
   { to: '/products', label: 'Ingredientes', icon: Box, bg: 'bg-yellow-50', color: 'text-yellow-600' },
@@ -11,21 +11,5 @@ const items = [
 ]
 
 export default function Navbar() {
-  return (
-    <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 place-items-center">
-        {items.map((it) => {
-          const Icon = it.icon
-          return (
-            <Link key={it.to} to={it.to} className="flex flex-col items-center justify-center gap-4 bg-white p-8 rounded-2xl shadow-sm hover:shadow-md w-full max-w-[220px]">
-              <div className={`p-3 rounded-lg ${it.bg}`}>
-                <Icon className={`w-10 h-10 ${it.color}`} />
-              </div>
-              <div className="text-lg font-medium text-cifp-neutral-700">{it.label}</div>
-            </Link>
-          )
-        })}
-      </div>
-    </nav>
-  )
+  return <NavigationGrid items={items} />
 }

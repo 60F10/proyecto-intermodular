@@ -28,15 +28,11 @@ Eres un ingeniero Frontend experto asistiendo en el proyecto "Lovelace". Tu obje
 * **Estilos:** Tailwind CSS exclusivo. Usa `clsx` y `tailwind-merge`.
 * **Accesibilidad:** Cumplir WCAG 2.1 (aria-labels, foco visible, contraste).
 
-### B. Conexión con Backend (Estrategia Híbrida)
-El backend está en desarrollo. Para no bloquearnos:
-1.  **Modo Mock (Simulación):** Crea servicios que devuelvan datos falsos inmediatos si el backend no responde o si la variable `VITE_USE_MOCK=true`.
-2.  **Contratos:** Basa tus interfaces TypeScript (DTOs) en la estructura que veas en los Controladores (`*.controller.ts`) y DTOs del backend, pero no importes código directamente del backend. Copia las interfaces a `/frontend/src/types`.
 
 ### C. Flujo de Trabajo "Anti-Agobio"
 1.  Lee `MISSION_CONTROL.md` para saber la tarea activa.
 2.  Desarrolla el componente visualmente primero (con datos falsos).
-3.  Verifica la responsividad (Móvil vs Desktop).
+3.  Verifica la responsividad completa.
 4.  Solicita confirmación antes de dar la tarea por terminada.
 
 ## 4. Comandos del Proyecto (Referencia)

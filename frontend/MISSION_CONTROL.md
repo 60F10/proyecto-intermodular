@@ -48,7 +48,7 @@
 - **Stack:** React 18 + Vite + Tailwind CSS
 - **Arquitectura:** Atomic Design Simplificado + Feature Slices
 - **Reglas:** Solo modificar carpeta `/frontend`, commits semánticos obligatorios
-- **Mock Data:** Usar `VITE_USE_MOCK=true` para datos falsos mientras backend no esté listo
+
 
 ---
 
