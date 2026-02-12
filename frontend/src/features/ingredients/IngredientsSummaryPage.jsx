@@ -101,10 +101,7 @@ export default function IngredientsSummaryPage() {
                 </div>
             </Card>
 
-            {/* Desktop Navigation Grid - Restored & Hybrid */}
-            <div className="hidden lg:block mt-8">
-                <NavigationGrid items={navigationItems} />
-            </div>
+            {/* Desktop Navigation Grid removed to avoid duplicating global Navbar */}
         </div>
     )
 }

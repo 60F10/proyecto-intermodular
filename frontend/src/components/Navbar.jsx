@@ -1,12 +1,9 @@
-import { Users, Box, ClipboardList, Truck, Heart, Repeat } from 'lucide-react'
-import NavigationGrid from './NavigationGrid'
+import { Users, Box, ClipboardList, Truck, Heart, Repeat, ChevronLeft, FileText, Archive } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Box, ClipboardList, Truck, Heart, Repeat, ChevronLeft, FileText, Archive } from 'lucide-react'
 
 const items = [
   { to: '/products', label: 'Ingredientes', icon: Box, bg: 'bg-yellow-50', color: 'text-yellow-600' },
   { to: '/inventory', label: 'Materiales', icon: ClipboardList, bg: 'bg-green-50', color: 'text-green-600' },
-  { to: '/users', label: 'Usuarios', icon: Users, bg: 'bg-purple-50', color: 'text-purple-600' },
   { to: '/recipes', label: 'Recetas', icon: FileText, bg: 'bg-amber-50', color: 'text-amber-600' },
   { to: '/returns', label: 'Bajas/Devoluciones', icon: Archive, bg: 'bg-pink-50', color: 'text-pink-600' },
   { to: '/orders', label: 'Pedidos', icon: Truck, bg: 'bg-blue-50', color: 'text-blue-600' },
@@ -15,7 +12,6 @@ const items = [
 ]
 
 export default function Navbar() {
-  return <NavigationGrid items={items} />
   const navigate = useNavigate()
 
   return (

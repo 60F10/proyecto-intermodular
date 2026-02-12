@@ -1,16 +1,17 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLeft, Download, AlertTriangle } from 'lucide-react'
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
-import { mockProducts, getCategories, getSuppliers, getLowStockProducts } from '../../services/products.mock'
+import { mockProducts } from '../../services/products.mock'
+import apiFetch from '../../services/api'
 
 export default function IngredientsFullPage() {
     const navigate = useNavigate()
     const { user } = useAuth()
 
     // State management
-    const [products] = useState(mockProducts)
+    const [products, setProducts] = useState(mockProducts)
     const [search, setSearch] = useState('')
     const [categoryFilter, setCategoryFilter] = useState('all')
     const [providerFilter, setProviderFilter] = useState('all')
@@ -18,21 +19,37 @@ export default function IngredientsFullPage() {
     const [sortDirection, setSortDirection] = useState('asc')
     const [selectedIds, setSelectedIds] = useState([])
     const [showOnlyLowStock, setShowOnlyLowStock] = useState(false)
+    const [isEditing, setIsEditing] = useState(false)
+    const [editProduct, setEditProduct] = useState(null)
 
-    // Get unique categories and providers
-    const categories = useMemo(() => getCategories(), [])
-    const suppliers = useMemo(() => getSuppliers(), [])
+    // Get unique categories and providers from loaded products
+    const categories = useMemo(() => [...new Set(products.map(p => p.categoria || ''))].filter(Boolean).sort(), [products])
+    const suppliers = useMemo(() => [...new Set(products.map(p => p.proveedor || ''))].filter(Boolean).sort(), [products])
+
+    // Load products from backend on mount (fallback to mock on error)
+    useEffect(() => {
+        let mounted = true
+        apiFetch('/products?limit=1000')
+            .then(res => {
+                const items = res?.data || res
+                if (mounted && Array.isArray(items)) setProducts(items)
+            })
+            .catch(() => {
+                // keep mockProducts if backend not available
+                setProducts(mockProducts)
+            })
+        return () => { mounted = false }
+    }, [])
 
     // Filter and sort products
     const filteredProducts = useMemo(() => {
         let filtered = products
 
-        // Apply search filter
+        // Apply search filter (match any field)
         if (search) {
             const searchLower = search.toLowerCase()
             filtered = filtered.filter(p =>
-                p.nombre.toLowerCase().includes(searchLower) ||
-                p.sku.toLowerCase().includes(searchLower)
+                Object.values(p).some(val => String(val).toLowerCase().includes(searchLower))
             )
         }
 
@@ -115,8 +132,83 @@ export default function IngredientsFullPage() {
             ? filteredProducts.filter(p => selectedIds.includes(p.id))
             : filteredProducts
 
-        console.log('📊 Exportar CSV:', dataToExport)
-        console.log(`Total productos a exportar: ${dataToExport.length}`)
+        if (dataToExport.length === 0) return
+
+        // Build CSV
+        const keys = ['id', 'sku', 'nombre', 'categoria', 'proveedor', 'stock', 'unidad', 'precio', 'rendimiento', 'activo']
+        const header = keys.join(',')
+        const rows = dataToExport.map(p => keys.map(k => {
+            const v = p[k]
+            if (typeof v === 'string') return `"${String(v).replace(/"/g, '""')}"`
+            return String(v)
+        }).join(','))
+
+        const csvContent = [header, ...rows].join('\n')
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `productos_export_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.csv`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+
+    const handleOpenEdit = (product) => {
+        setEditProduct(product)
+        setIsEditing(true)
+    }
+
+    const handleCloseEdit = () => {
+        setEditProduct(null)
+        setIsEditing(false)
+    }
+
+    const [deleteTarget, setDeleteTarget] = useState(null)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+    const handleSaveEdit = async (updated) => {
+        if (!updated) return
+        try {
+            // Determine create vs update by presence of id and whether it looks like a client-only id
+            const isExisting = updated.id && products.some(p => p.id === updated.id && !String(p.id).startsWith('id_'))
+            if (isExisting) {
+                const res = await apiFetch(`/products/${updated.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(updated),
+                })
+                setProducts(products.map(p => p.id === res.id ? res : p))
+            } else {
+                const res = await apiFetch('/products', {
+                    method: 'POST',
+                    body: JSON.stringify(updated),
+                })
+                setProducts([res, ...products])
+            }
+            handleCloseEdit()
+        } catch (err) {
+            alert(`Error: ${err?.body?.message || err.message}`)
+        }
+    }
+
+    const handleDelete = async (id) => {
+        if (isRegularUser) return
+        setDeleteTarget(id)
+        setShowDeleteModal(true)
+    }
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return
+        try {
+            await apiFetch(`/products/${deleteTarget}`, { method: 'DELETE' })
+            setProducts(products.filter(p => p.id !== deleteTarget))
+            setSelectedIds(selectedIds.filter(sid => sid !== deleteTarget))
+            setShowDeleteModal(false)
+            setDeleteTarget(null)
+        } catch (err) {
+            alert(`Error: ${err?.body?.message || err.message}`)
+        }
     }
 
     // Check if user is regular USER (not ADMIN)
@@ -129,10 +221,47 @@ export default function IngredientsFullPage() {
             : <ArrowDown className="w-4 h-4" />
     }
 
-    const lowStockCount = getLowStockProducts().length
+    const lowStockCount = products.filter(p => p.stock < p.stockMinimo).length
 
     return (
         <div className="flex flex-col h-[calc(100vh-12rem)] short:h-[calc(100vh-8rem)] space-y-4 pb-4 short:space-y-2 short:pb-2">
+            {/* Edit/Create Modal */}
+            {isEditing && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6">
+                        <h3 className="text-lg font-semibold mb-4">{editProduct?.id ? 'Editar Producto' : 'Crear Producto'}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <Input value={editProduct?.nombre || ''} onChange={(e) => setEditProduct({ ...editProduct, nombre: e.target.value })} placeholder="Nombre" />
+                            <Input value={editProduct?.sku || ''} onChange={(e) => setEditProduct({ ...editProduct, sku: e.target.value })} placeholder="SKU" />
+                            <Input value={editProduct?.categoria || ''} onChange={(e) => setEditProduct({ ...editProduct, categoria: e.target.value })} placeholder="Categoría" />
+                            <Input value={editProduct?.proveedor || ''} onChange={(e) => setEditProduct({ ...editProduct, proveedor: e.target.value })} placeholder="Proveedor" />
+                            <Input type="number" value={editProduct?.stock ?? 0} onChange={(e) => setEditProduct({ ...editProduct, stock: Number(e.target.value) })} placeholder="Stock" />
+                            <Input type="number" value={editProduct?.stockMinimo ?? 0} onChange={(e) => setEditProduct({ ...editProduct, stockMinimo: Number(e.target.value) })} placeholder="Stock mínimo" />
+                            <Input type="number" value={editProduct?.precio ?? 0} onChange={(e) => setEditProduct({ ...editProduct, precio: Number(e.target.value) })} placeholder="Precio" />
+                            <Input value={editProduct?.unidad || ''} onChange={(e) => setEditProduct({ ...editProduct, unidad: e.target.value })} placeholder="Unidad" />
+                        </div>
+
+                        <div className="mt-4 flex justify-end gap-2">
+                            <Button variant="secondary" onClick={handleCloseEdit}>Cancelar</Button>
+                            <Button onClick={() => handleSaveEdit(editProduct)}>Guardar</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+                        <h3 className="text-lg font-semibold mb-2">Confirmar eliminación</h3>
+                        <p className="text-sm text-cifp-neutral-700 mb-4">¿Eliminar este producto? Esta acción no se puede deshacer.</p>
+                        <div className="flex justify-end gap-2">
+                            <Button variant="secondary" onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }}>Cancelar</Button>
+                            <Button onClick={confirmDelete} variant="corporate">Eliminar</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* Page Header with Back Button - FIXED */}
             <div className="flex items-center justify-between flex-shrink-0 short:py-0">
                 <button
@@ -199,6 +328,7 @@ export default function IngredientsFullPage() {
                             disabled={isRegularUser}
                             className="gap-2 short:h-8 short:text-xs short:px-2"
                             title={isRegularUser ? 'Solo administradores pueden crear productos' : ''}
+                            onClick={() => handleOpenEdit({ nombre: '', descripcion: '', sku: '', precio: 0, stock: 0, stockMinimo: 0, categoria: '', proveedor: '', rendimiento: 0, unidad: 'kg', activo: true })}
                         >
                             <Plus className="w-4 h-4 short:hidden" />
                             Crear Producto
@@ -209,6 +339,10 @@ export default function IngredientsFullPage() {
                             disabled={isRegularUser || selectedIds.length === 0}
                             className="gap-2 short:h-8 short:text-xs short:px-2"
                             title={isRegularUser ? 'Solo administradores pueden modificar productos' : 'Selecciona al menos un producto'}
+                            onClick={() => {
+                                const toEdit = products.find(p => p.id === selectedIds[0])
+                                if (toEdit) handleOpenEdit(toEdit)
+                            }}
                         >
                             <Edit className="w-4 h-4 short:hidden" />
                             Modificar Seleccionado
@@ -347,13 +481,14 @@ export default function IngredientsFullPage() {
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-center short:px-2 short:py-1">
                                             <div className="flex items-center justify-center gap-2">
-                                                <button className="p-1 text-cifp-blue hover:bg-cifp-blue/10 rounded transition-colors" title="Editar">
+                                                <button onClick={() => handleOpenEdit(product)} className="p-1 text-cifp-blue hover:bg-cifp-blue/10 rounded transition-colors" title="Editar">
                                                     <Edit className="w-4 h-4 short:w-3 short:h-3" />
                                                 </button>
                                                 <button
                                                     className="p-1 text-cifp-red hover:bg-cifp-red/10 rounded transition-colors"
                                                     disabled={isRegularUser}
                                                     title={isRegularUser ? 'Solo administradores pueden eliminar' : 'Eliminar'}
+                                                    onClick={() => handleDelete(product.id)}
                                                 >
                                                     <Trash2 className="w-4 h-4 short:w-3 short:h-3" />
                                                 </button>
