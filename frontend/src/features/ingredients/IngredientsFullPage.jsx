@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLeft, Download, AlertTriangle } from 'lucide-react'
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLeft, Download, AlertTriangle, Eye } from 'lucide-react'
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
 import { mockProducts } from '../../services/products.mock'
@@ -148,7 +148,7 @@ export default function IngredientsFullPage() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `productos_export_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.csv`)
+        link.setAttribute('download', `productos_export_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.csv`)
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -324,11 +324,26 @@ export default function IngredientsFullPage() {
                     {/* Action Buttons Row */}
                     <div className="flex flex-wrap items-center gap-3 short:gap-2">
                         <Button
+                            variant="secondary"
+                            disabled={selectedIds.length !== 1}
+                            className="gap-2 short:h-8 short:text-xs short:px-2"
+                            title={selectedIds.length !== 1 ? 'Selecciona un único producto para ver detalle' : 'Ver Detalle'}
+                            onClick={() => {
+                                if (selectedIds.length === 1) {
+                                    navigate(`/dashboard/ingredientes/${selectedIds[0]}/full`)
+                                }
+                            }}
+                        >
+                            <Eye className="w-4 h-4 short:hidden" />
+                            Ver Detalle
+                        </Button>
+
+                        <Button
                             variant="primary"
                             disabled={isRegularUser}
                             className="gap-2 short:h-8 short:text-xs short:px-2"
                             title={isRegularUser ? 'Solo administradores pueden crear productos' : ''}
-                            onClick={() => handleOpenEdit({ nombre: '', descripcion: '', sku: '', precio: 0, stock: 0, stockMinimo: 0, categoria: '', proveedor: '', rendimiento: 0, unidad: 'kg', activo: true })}
+                            onClick={() => navigate('/dashboard/ingredientes/new/full')}
                         >
                             <Plus className="w-4 h-4 short:hidden" />
                             Crear Producto
@@ -444,7 +459,8 @@ export default function IngredientsFullPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        className={`transition-colors ${isLowStock
+                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        className={`transition-colors cursor-pointer ${isLowStock
                                             ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
                                             : isSelected
                                                 ? 'bg-cifp-blue/5 hover:bg-cifp-blue/10'
