@@ -74,7 +74,8 @@ export default function IngredientsSummaryPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        className={`transition-colors ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-50'} `}
+                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        className={`transition-colors cursor-pointer ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-100'} `}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-cifp-neutral-600 short:px-4 short:py-2 short:text-xs">{product.sku}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cifp-neutral-900 short:px-4 short:py-2 short:text-xs">{product.nombre}</td>

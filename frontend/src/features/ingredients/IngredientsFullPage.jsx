@@ -321,12 +321,12 @@ export default function IngredientsFullPage() {
                         </Button>
                     </div>
 
-                    {/* Action Buttons Row - Single Line on Kiosk */}
-                    <div className="flex flex-wrap items-center gap-3 short:gap-1.5 short:flex-nowrap">
+                    {/* Action Buttons Row - Flexible Wrap on Kiosk */}
+                    <div className="flex flex-wrap items-center gap-2 short:gap-2">
                         <Button
                             variant="secondary"
                             disabled={selectedIds.length !== 1}
-                            className="gap-2 short:h-8 short:text-[10px] short:px-1.5 short:gap-0.5"
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={selectedIds.length !== 1 ? 'Selecciona un único producto para ver detalle' : 'Ver Detalle'}
                             onClick={() => {
                                 if (selectedIds.length === 1) {
@@ -335,24 +335,24 @@ export default function IngredientsFullPage() {
                             }}
                         >
                             <Eye className="w-4 h-4 short:w-3 short:h-3" />
-                            <span className="short:hidden">Ver Detalle</span>
+                            <span className="short:hidden sm:short:inline">Ver Detalle</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             disabled={isRegularUser}
-                            className="gap-2 short:h-8 short:text-[10px] short:px-1.5 short:gap-0.5"
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={isRegularUser ? 'Solo administradores pueden crear productos' : ''}
                             onClick={() => navigate('/dashboard/ingredientes/new/full')}
                         >
                             <Plus className="w-4 h-4 short:w-3 short:h-3" />
-                            <span className="short:hidden">Crear</span>
+                            <span className="short:hidden sm:short:inline">Crear</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             disabled={isRegularUser || selectedIds.length === 0}
-                            className="gap-2 short:h-8 short:text-[10px] short:px-1.5 short:gap-0.5"
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={isRegularUser ? 'Solo administradores pueden modificar productos' : 'Selecciona al menos un producto'}
                             onClick={() => {
                                 const toEdit = products.find(p => p.id === selectedIds[0])
@@ -360,10 +360,10 @@ export default function IngredientsFullPage() {
                             }}
                         >
                             <Edit className="w-4 h-4 short:w-3 short:h-3" />
-                            <span className="short:hidden">Modificar</span>
+                            <span className="short:hidden sm:short:inline">Modificar</span>
                         </Button>
 
-                        <div className="ml-auto flex items-center gap-2 short:gap-1 short:ml-1">
+                        <div className="ml-auto flex items-center gap-2 short:gap-1 flex-shrink-0">
                             <label className="flex items-center gap-2 cursor-pointer select-none short:gap-1">
                                 <input
                                     type="checkbox"
@@ -371,7 +371,7 @@ export default function IngredientsFullPage() {
                                     onChange={(e) => setShowOnlyLowStock(e.target.checked)}
                                     className="w-4 h-4 text-cifp-red focus:ring-cifp-red border-gray-300 rounded short:w-3 short:h-3"
                                 />
-                                <span className="text-sm font-medium text-cifp-neutral-700 short:text-[10px] short:whitespace-nowrap">Stock crítico</span>
+                                <span className="text-sm font-medium text-cifp-neutral-700 short:text-[10px] whitespace-nowrap">Stock crítico</span>
                             </label>
                         </div>
                     </div>
