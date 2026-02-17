@@ -41,13 +41,14 @@ export default function IngredientsSummaryPage() {
                     <h1 className="text-3xl font-bold text-cifp-neutral-900 short:text-xl">Ingredientes</h1>
                 </div>
 
-                {/* Advanced Management Button - Restored */}
+                {/* Advanced Management Button - Always Visible */}
                 <Button
                     onClick={() => navigate('/products/full')}
-                    className="hidden sm:flex items-center gap-2"
+                    className="flex items-center gap-2 short:text-xs short:px-2 short:py-1"
                 >
-                    <span>Gestión Avanzada</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="short:hidden">Gestión Avanzada</span>
+                    <span className="hidden short:inline">Gestión Avanzada</span>
+                    <ArrowRight className="w-4 h-4 short:w-3 short:h-3" />
                 </Button>
             </div>
 
