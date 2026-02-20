@@ -4,6 +4,12 @@ import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import IngredientsSummaryPage from '../features/ingredients/IngredientsSummaryPage'
 import IngredientsFullPage from '../features/ingredients/IngredientsFullPage'
+<<<<<<< Updated upstream
+=======
+import IngredientDetailPage from '../features/ingredients/IngredientDetailPage'
+import MaterialsSummaryPage from '../features/materials/MaterialsSummaryPage'
+import MaterialsFullPage from '../features/materials/MaterialsFullPage'
+>>>>>>> Stashed changes
 import ProfilePage from '../features/profile/ProfilePage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
@@ -23,6 +29,14 @@ function AppRouter() {
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="products" element={<IngredientsSummaryPage />} />
                 <Route path="products/full" element={<IngredientsFullPage />} />
+<<<<<<< Updated upstream
+=======
+                {/* Materiales */}
+                <Route path="inventory" element={<MaterialsSummaryPage />} />
+                <Route path="inventory/full" element={<MaterialsFullPage />} />
+                {/* Nuevo detalle de ingredientes (Focus Mode via /full suffix) */}
+                <Route path="dashboard/ingredientes/:id/full" element={<IngredientDetailPage />} />
+>>>>>>> Stashed changes
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
 

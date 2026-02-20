@@ -29,12 +29,6 @@ Eres un ingeniero Frontend experto asistiendo en el proyecto "Lovelace". Tu obje
 * **Accesibilidad:** Cumplir WCAG 2.1 (aria-labels, foco visible, contraste).
 
 
-### C. Flujo de Trabajo "Anti-Agobio"
-1.  Lee `MISSION_CONTROL.md` para saber la tarea activa.
-2.  Desarrolla el componente visualmente primero (con datos falsos).
-3.  Verifica la responsividad completa.
-4.  Solicita confirmación antes de dar la tarea por terminada.
-
 ## 4. Comandos del Proyecto (Referencia)
 * Levantar todo: `docker compose up -d`
 * Frontend Dev: `npm run dev` (dentro de /frontend)
