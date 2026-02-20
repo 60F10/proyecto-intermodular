@@ -76,13 +76,21 @@ git checkout -b chore/db-scripts
 
 ---
 
-## 🐳 6. Levantar la base de datos (Docker)
+## 🐳 6. Levantar el entorno completo (Docker)
 
-Desde la raíz del proyecto:
-docker compose up -d
+Ahora no hace falta que abras el backend y el frontend por separado. Con un solo comando se levanta la Base de Datos, el NestJS y el Vite.
 
-Comprobar que está arriba:
-docker ps
+A) Primera vez o cambios en dependencias (Instalación)
+Si es la primera vez que arrancas el proyecto o si alguien ha instalado paquetes nuevos en el package.json, usa este comando para que Docker construya las imágenes:
+
+    docker compose up --build
+
+B) Uso diario (Solo iniciar)
+Si ya lo tienes todo configurado y solo quieres ponerte a picar código, simplemente lanza:
+
+    docker compose up
+
+Para detenerlo todo, pulsa Ctrl + C en la terminal o usa docker compose down.
 
 ---
 
@@ -104,6 +112,7 @@ docker exec -it lovelace_db psql -U lovelace -d lovelace
 
 docker exec -it lovelace_db psql -U lovelace -d lovelace -c "select * from users"
 
+
 ### Users
 
 admin@lovelace.edu — SuperAdmin2026!
@@ -123,11 +132,15 @@ SELECT * FROM users;
 
 ---
 
-## ⚙️ 10. Arrancar el backend (NestJS)
+## ⚙️ 10. Acceso a las aplicaciones
 
-cd backend
-npm install
-npm run start:dev
+Una vez que Docker termine de arrancar (verás los logs de los tres servicios mezclados), podrás acceder desde tu navegador en Windows a:
+
+Frontend (Vite): http://localhost:5173
+
+Backend (API NestJS): http://localhost:3000
+
+Documentación Swagger: http://localhost:3000/api (si está configurada)
 
 ---
 
