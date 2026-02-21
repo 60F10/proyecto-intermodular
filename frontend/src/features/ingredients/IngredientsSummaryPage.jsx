@@ -41,13 +41,14 @@ export default function IngredientsSummaryPage() {
                     <h1 className="text-3xl font-bold text-cifp-neutral-900 short:text-xl">Ingredientes</h1>
                 </div>
 
-                {/* Advanced Management Button - Restored */}
+                {/* Advanced Management Button - Always Visible */}
                 <Button
                     onClick={() => navigate('/products/full')}
-                    className="hidden sm:flex items-center gap-2"
+                    className="flex items-center gap-2 short:text-xs short:px-2 short:py-1"
                 >
-                    <span>Gestión Avanzada</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="short:hidden">Gestión Avanzada</span>
+                    <span className="hidden short:inline">Gestión Avanzada</span>
+                    <ArrowRight className="w-4 h-4 short:w-3 short:h-3" />
                 </Button>
             </div>
 
@@ -73,7 +74,8 @@ export default function IngredientsSummaryPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        className={`transition-colors ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-50'} `}
+                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        className={`transition-colors cursor-pointer ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-100'} `}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-cifp-neutral-600 short:px-4 short:py-2 short:text-xs">{product.sku}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cifp-neutral-900 short:px-4 short:py-2 short:text-xs">{product.nombre}</td>
