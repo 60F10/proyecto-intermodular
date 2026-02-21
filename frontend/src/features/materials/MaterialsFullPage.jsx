@@ -293,30 +293,33 @@ export default function MaterialsFullPage() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap items-center gap-3 short:gap-2">
-                        <Button
-                            variant="primary"
-                            disabled={isRegularUser}
-                            className="gap-2 short:h-8 short:text-xs short:px-2"
-                            title={isRegularUser ? 'Solo administradores pueden crear materiales' : ''}
-                            onClick={() => handleOpenEdit({ categoria: 'Utensilios' })}
-                        >
-                            <Plus className="w-4 h-4 short:hidden" />
-                            Crear Material
-                        </Button>
+                        {!isRegularUser && (
+                            <Button
+                                variant="primary"
+                                className="gap-2 short:h-8 short:text-xs short:px-2"
+                                onClick={() => navigate('/inventory/new')}
+                            >
+                                <Plus className="w-4 h-4 short:hidden" />
+                                Crear Material
+                            </Button>
+                        )}
 
-                        <Button
-                            variant="primary"
-                            disabled={isRegularUser || selectedIds.length === 0}
-                            className="gap-2 short:h-8 short:text-xs short:px-2"
-                            title={isRegularUser ? 'Solo administradores pueden modificar materiales' : 'Selecciona al menos un material'}
-                            onClick={() => {
-                                const toEdit = products.find(p => p.id === selectedIds[0])
-                                if (toEdit) handleOpenEdit(toEdit)
-                            }}
-                        >
-                            <Edit className="w-4 h-4 short:hidden" />
-                            Modificar Seleccionado
-                        </Button>
+                        {!isRegularUser && (
+                            <Button
+                                variant="primary"
+                                disabled={selectedIds.length === 0}
+                                className="gap-2 short:h-8 short:text-xs short:px-2"
+                                title={selectedIds.length === 0 ? 'Selecciona al menos un material' : ''}
+                                onClick={() => {
+                                    if (selectedIds.length > 0) {
+                                        navigate(`/inventory/${selectedIds[0]}?edit=1`)
+                                    }
+                                }}
+                            >
+                                <Edit className="w-4 h-4 short:hidden" />
+                                Modificar Seleccionado
+                            </Button>
+                        )}
 
                         <div className="ml-auto flex items-center gap-2">
                             <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -378,12 +381,12 @@ export default function MaterialsFullPage() {
                                 return (
                                     <tr
                                         key={material.id}
-                                        onDoubleClick={() => handleOpenEdit(material)}
+                                        onDoubleClick={() => navigate(`/inventory/${material.id}`)}
                                         className={`transition-colors cursor-pointer ${isLowStock
-                                                ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
-                                                : isSelected
-                                                    ? 'bg-cifp-blue/5 hover:bg-cifp-blue/10'
-                                                    : 'hover:bg-cifp-neutral-50'
+                                            ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
+                                            : isSelected
+                                                ? 'bg-cifp-blue/5 hover:bg-cifp-blue/10'
+                                                : 'hover:bg-cifp-neutral-50'
                                             } short:text-xs`}
                                     >
                                         <td className="px-4 py-3 short:px-2 short:py-1">
@@ -417,9 +420,9 @@ export default function MaterialsFullPage() {
                                         <td className="px-4 py-3 whitespace-nowrap text-center short:px-2 short:py-1">
                                             <div className="flex items-center justify-center gap-2">
                                                 <button
-                                                    onClick={() => handleOpenEdit(material)}
+                                                    onClick={() => navigate(`/inventory/${material.id}${!isRegularUser ? '?edit=1' : ''}`)}
                                                     className="p-1 text-cifp-blue hover:bg-cifp-blue/10 rounded transition-colors"
-                                                    title="Editar"
+                                                    title={isRegularUser ? 'Ver detalle' : 'Editar'}
                                                 >
                                                     <Edit className="w-4 h-4 short:w-3 short:h-3" />
                                                 </button>

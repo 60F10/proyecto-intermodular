@@ -3,6 +3,7 @@ import { AlertCircle, ClipboardList, Box, Users, Truck, Repeat, Heart, ArrowRigh
 import { Card, Button } from '../../components/ui'
 import { mockProducts, FOOD_CATEGORIES } from '../../services/products.mock'
 import { useMemo } from 'react'
+import NavigationGrid from '../../components/NavigationGrid'
 
 const navigationItems = [
     { to: '/products', label: 'Ingredientes', icon: Box, bg: 'bg-yellow-50', color: 'text-yellow-600' },
@@ -79,7 +80,8 @@ export default function MaterialsSummaryPage() {
                                 return (
                                     <tr
                                         key={material.id}
-                                        className={`transition-colors ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-50'}`}
+                                        onDoubleClick={() => navigate(`/inventory/${material.id}`)}
+                                        className={`transition-colors cursor-pointer ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-50'}`}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-cifp-neutral-600 short:px-4 short:py-2 short:text-xs">{material.sku}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cifp-neutral-900 short:px-4 short:py-2 short:text-xs">{material.nombre}</td>
