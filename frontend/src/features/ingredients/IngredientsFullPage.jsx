@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLeft, Download, AlertTriangle } from 'lucide-react'
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLeft, Download, AlertTriangle, Eye } from 'lucide-react'
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
 import { mockProducts } from '../../services/products.mock'
@@ -148,7 +148,7 @@ export default function IngredientsFullPage() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', `productos_export_${new Date().toISOString().slice(0,19).replace(/[:T]/g, '-')}.csv`)
+        link.setAttribute('download', `productos_export_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.csv`)
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -280,25 +280,25 @@ export default function IngredientsFullPage() {
                 )}
             </div>
 
-            {/* Toolbar - FIXED */}
-            <Card className="p-6 flex-shrink-0 short:p-3">
-                <div className="space-y-4 short:space-y-2">
-                    {/* Search and Filters Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 short:gap-2">
+            {/* Toolbar - Ultra-Compact Mode for Kiosk */}
+            <Card className="p-6 flex-shrink-0 short:p-2">
+                <div className="space-y-4 short:space-y-1.5">
+                    {/* Search and Filters Row - Horizontal on Kiosk */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 short:grid-cols-4 short:gap-1.5">
                         <Input
                             placeholder="Buscar por ID o Nombre..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             icon={Search}
-                            className="w-full short:h-8 short:text-xs"
+                            className="w-full short:h-8 short:text-xs short:placeholder:text-[10px]"
                         />
 
                         <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cifp-blue/20 focus:border-cifp-blue short:h-8 short:px-2 short:py-1 short:text-xs"
+                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cifp-blue/20 focus:border-cifp-blue short:h-8 short:px-1.5 short:py-0 short:text-xs"
                         >
-                            <option value="all">Todas las categorías</option>
+                            <option value="all">Categorías</option>
                             {categories.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                             ))}
@@ -307,56 +307,71 @@ export default function IngredientsFullPage() {
                         <select
                             value={providerFilter}
                             onChange={(e) => setProviderFilter(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cifp-blue/20 focus:border-cifp-blue short:h-8 short:px-2 short:py-1 short:text-xs"
+                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cifp-blue/20 focus:border-cifp-blue short:h-8 short:px-1.5 short:py-0 short:text-xs"
                         >
-                            <option value="all">Todos los proveedores</option>
+                            <option value="all">Proveedores</option>
                             {suppliers.map(sup => (
                                 <option key={sup} value={sup}>{sup}</option>
                             ))}
                         </select>
 
-                        <Button onClick={handleResetFilters} variant="secondary" className="gap-2 short:h-8 short:text-xs short:px-2">
+                        <Button onClick={handleResetFilters} variant="secondary" className="gap-2 short:h-8 short:text-xs short:px-1.5 short:gap-1">
                             <X className="w-4 h-4 short:w-3 short:h-3" />
-                            Resetear Filtros
+                            <span className="short:hidden">Resetear</span>
                         </Button>
                     </div>
 
-                    {/* Action Buttons Row */}
-                    <div className="flex flex-wrap items-center gap-3 short:gap-2">
+                    {/* Action Buttons Row - Flexible Wrap on Kiosk */}
+                    <div className="flex flex-wrap items-center gap-2 short:gap-2">
+                        <Button
+                            variant="secondary"
+                            disabled={selectedIds.length !== 1}
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
+                            title={selectedIds.length !== 1 ? 'Selecciona un único producto para ver detalle' : 'Ver Detalle'}
+                            onClick={() => {
+                                if (selectedIds.length === 1) {
+                                    navigate(`/dashboard/ingredientes/${selectedIds[0]}/full`)
+                                }
+                            }}
+                        >
+                            <Eye className="w-4 h-4 short:w-3 short:h-3" />
+                            <span className="short:hidden sm:short:inline">Ver Detalle</span>
+                        </Button>
+
                         <Button
                             variant="primary"
                             disabled={isRegularUser}
-                            className="gap-2 short:h-8 short:text-xs short:px-2"
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={isRegularUser ? 'Solo administradores pueden crear productos' : ''}
-                            onClick={() => handleOpenEdit({ nombre: '', descripcion: '', sku: '', precio: 0, stock: 0, stockMinimo: 0, categoria: '', proveedor: '', rendimiento: 0, unidad: 'kg', activo: true })}
+                            onClick={() => navigate('/dashboard/ingredientes/new/full')}
                         >
-                            <Plus className="w-4 h-4 short:hidden" />
-                            Crear Producto
+                            <Plus className="w-4 h-4 short:w-3 short:h-3" />
+                            <span className="short:hidden sm:short:inline">Crear</span>
                         </Button>
 
                         <Button
                             variant="primary"
                             disabled={isRegularUser || selectedIds.length === 0}
-                            className="gap-2 short:h-8 short:text-xs short:px-2"
+                            className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={isRegularUser ? 'Solo administradores pueden modificar productos' : 'Selecciona al menos un producto'}
                             onClick={() => {
                                 const toEdit = products.find(p => p.id === selectedIds[0])
                                 if (toEdit) handleOpenEdit(toEdit)
                             }}
                         >
-                            <Edit className="w-4 h-4 short:hidden" />
-                            Modificar Seleccionado
+                            <Edit className="w-4 h-4 short:w-3 short:h-3" />
+                            <span className="short:hidden sm:short:inline">Modificar</span>
                         </Button>
 
-                        <div className="ml-auto flex items-center gap-2">
-                            <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <div className="ml-auto flex items-center gap-2 short:gap-1 flex-shrink-0">
+                            <label className="flex items-center gap-2 cursor-pointer select-none short:gap-1">
                                 <input
                                     type="checkbox"
                                     checked={showOnlyLowStock}
                                     onChange={(e) => setShowOnlyLowStock(e.target.checked)}
                                     className="w-4 h-4 text-cifp-red focus:ring-cifp-red border-gray-300 rounded short:w-3 short:h-3"
                                 />
-                                <span className="text-sm font-medium text-cifp-neutral-700 short:text-xs">Solo stock crítico</span>
+                                <span className="text-sm font-medium text-cifp-neutral-700 short:text-[10px] whitespace-nowrap">Stock crítico</span>
                             </label>
                         </div>
                     </div>
@@ -444,7 +459,8 @@ export default function IngredientsFullPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        className={`transition-colors ${isLowStock
+                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        className={`transition-colors cursor-pointer ${isLowStock
                                             ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
                                             : isSelected
                                                 ? 'bg-cifp-blue/5 hover:bg-cifp-blue/10'

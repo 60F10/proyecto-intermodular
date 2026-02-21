@@ -4,6 +4,10 @@ import RegisterPage from '../features/auth/RegisterPage'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import IngredientsSummaryPage from '../features/ingredients/IngredientsSummaryPage'
 import IngredientsFullPage from '../features/ingredients/IngredientsFullPage'
+import IngredientDetailPage from '../features/ingredients/IngredientDetailPage'
+import MaterialsSummaryPage from '../features/materials/MaterialsSummaryPage'
+import MaterialsFullPage from '../features/materials/MaterialsFullPage'
+import MaterialDetailPage from '../features/materials/MaterialDetailPage'
 import ProfilePage from '../features/profile/ProfilePage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
@@ -21,8 +25,19 @@ function AppRouter() {
             <Route path="/" element={<RequireAuth><MainLayout /></RequireAuth>}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
+
+                {/* Ingredientes */}
                 <Route path="products" element={<IngredientsSummaryPage />} />
                 <Route path="products/full" element={<IngredientsFullPage />} />
+                <Route path="products/new" element={<IngredientDetailPage />} />
+                <Route path="products/:id" element={<IngredientDetailPage />} />
+
+                {/* Materiales */}
+                <Route path="inventory" element={<MaterialsSummaryPage />} />
+                <Route path="inventory/full" element={<MaterialsFullPage />} />
+                <Route path="inventory/new" element={<MaterialDetailPage />} />
+                <Route path="inventory/:id" element={<MaterialDetailPage />} />
+
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
 

@@ -1,5 +1,5 @@
 /**
- * Mock data for products (ingredients)
+ * Mock data for products (ingredients AND materials)
  * Based on product.entity.ts from backend
  * 
  * @typedef {Object} Product
@@ -437,7 +437,134 @@ export const mockProducts = [
         rendimiento: 2.100,
         unidad: 'kg',
         activo: true
+    },
+    // ──────────────────────────────────────
+    // MATERIALES (no alimentarios) — SKU: MAT_*
+    // ──────────────────────────────────────
+    {
+        id: 'mat00001-0000-0000-0000-000000000001',
+        nombre: 'Cuchillo Chef 20cm',
+        descripcion: 'Cuchillo de chef forjado, hoja de 20 cm',
+        sku: 'MAT_0001',
+        precio: 45.90,
+        stock: 8,
+        stockMinimo: 5,
+        categoria: 'Utensilios',
+        proveedor: 'Suministros Hostelería',
+        rendimiento: 1.0,
+        unidad: 'unidad',
+        activo: true
+    },
+    {
+        id: 'mat00002-0000-0000-0000-000000000002',
+        nombre: 'Tabla de Corte Grande',
+        descripcion: 'Tabla de polietileno 60x40 cm, APPCC',
+        sku: 'MAT_0002',
+        precio: 22.50,
+        stock: 3,
+        stockMinimo: 6,
+        categoria: 'Utensilios',
+        proveedor: 'Suministros Hostelería',
+        rendimiento: 1.0,
+        unidad: 'unidad',
+        activo: true
+    },
+    {
+        id: 'mat00003-0000-0000-0000-000000000003',
+        nombre: 'Guantes de Nitrilo (caja 100)',
+        descripcion: 'Guantes desechables de nitrilo talla M',
+        sku: 'MAT_0003',
+        precio: 9.99,
+        stock: 12,
+        stockMinimo: 10,
+        categoria: 'Seguridad',
+        proveedor: 'Higiene Total',
+        rendimiento: 100.0,
+        unidad: 'caja',
+        activo: true
+    },
+    {
+        id: 'mat00004-0000-0000-0000-000000000004',
+        nombre: 'Bolsas Vacío 30x40 cm (100 uds)',
+        descripcion: 'Bolsas gofradas para envasado al vacío',
+        sku: 'MAT_0004',
+        precio: 14.75,
+        stock: 4,
+        stockMinimo: 8,
+        categoria: 'Packaging',
+        proveedor: 'PackPro Canarias',
+        rendimiento: 100.0,
+        unidad: 'pack',
+        activo: true
+    },
+    {
+        id: 'mat00005-0000-0000-0000-000000000005',
+        nombre: 'Film Transparente (300 m)',
+        descripcion: 'Film estirable profesional para conservación',
+        sku: 'MAT_0005',
+        precio: 11.20,
+        stock: 7,
+        stockMinimo: 5,
+        categoria: 'Packaging',
+        proveedor: 'PackPro Canarias',
+        rendimiento: 300.0,
+        unidad: 'rollo',
+        activo: true
+    },
+    {
+        id: 'mat00006-0000-0000-0000-000000000006',
+        nombre: 'Detergente Lavavajillas 5L',
+        descripcion: 'Detergente industrial para lavavajillas industrial',
+        sku: 'MAT_0006',
+        precio: 18.40,
+        stock: 2,
+        stockMinimo: 4,
+        categoria: 'Limpieza',
+        proveedor: 'Higiene Total',
+        rendimiento: 5.0,
+        unidad: 'L',
+        activo: true
+    },
+    {
+        id: 'mat00007-0000-0000-0000-000000000007',
+        nombre: 'Desengrasante Cocina 750 ml',
+        descripcion: 'Desengrasante potente apto alimentación',
+        sku: 'MAT_0007',
+        precio: 5.60,
+        stock: 9,
+        stockMinimo: 6,
+        categoria: 'Limpieza',
+        proveedor: 'Higiene Total',
+        rendimiento: 0.75,
+        unidad: 'unidad',
+        activo: true
+    },
+    {
+        id: 'mat00008-0000-0000-0000-000000000008',
+        nombre: 'Gorro Desechable (50 uds)',
+        descripcion: 'Gorros de cocina desechables no tejidos',
+        sku: 'MAT_0008',
+        precio: 4.30,
+        stock: 1,
+        stockMinimo: 5,
+        categoria: 'Seguridad',
+        proveedor: 'Higiene Total',
+        rendimiento: 50.0,
+        unidad: 'pack',
+        activo: true
     }
+]
+
+/**
+ * Food categories — used to split Ingredientes vs. Materiales.
+ * Ingredientes: products whose category IS in this list.
+ * Materiales:   products whose category is NOT in this list.
+ */
+export const FOOD_CATEGORIES = [
+    'Verduras', 'Carnes', 'Pescados', 'Mariscos', 'Lácteos',
+    'Huevos', 'Harinas', 'Cereales', 'Legumbres', 'Especias',
+    'Aceites', 'Condimentos', 'Endulzantes', 'Bebidas',
+    'Conservas', 'Repostería', 'Hongos',
 ]
 
 /**

@@ -10,8 +10,8 @@ function MainLayout() {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Focus Mode: reserved for explicit kiosk routes only. Keep navbar visible on /products/full.
-  const isFocusMode = location.pathname.includes('/kiosk')
+  // Focus Mode: reserved for explicit kiosk routes OR routes ending in /full (as requested).
+  const isFocusMode = location.pathname.includes('/kiosk') || location.pathname.endsWith('/full')
 
   return (
     <div
