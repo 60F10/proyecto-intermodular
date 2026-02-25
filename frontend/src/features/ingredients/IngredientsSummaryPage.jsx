@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Box, AlertCircle, ClipboardList, Users, Truck, Repeat, Heart, ArrowRight, X } from 'lucide-react'
 import { Card, Button } from '../../components/ui'
+import { getIngredients } from '../../services/products.service'
 import { mockProducts } from '../../services/products.mock'
 import NavigationGrid from '../../components/NavigationGrid'
 
@@ -19,21 +20,25 @@ export default function IngredientsSummaryPage() {
 
     const [selectedProduct, setSelectedProduct] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [allProducts, setAllProducts] = useState([])
+    const [loadError, setLoadError] = useState(false)
 
-    // Limit to 7 products for kiosk mode, prioritize low stock (stock < stockMinimo)
-    const displayProducts = useMemo(() => {
-        const sorted = [...mockProducts].sort((a, b) => {
-            // Prioritize low stock products
-            const aLow = a.stock < a.stockMinimo
-            const bLow = b.stock < b.stockMinimo
-            if (aLow && !bLow) return -1
-            if (!aLow && bLow) return 1
-            return 0
-        })
-        return sorted.slice(0, 7)
+    // Load real ingredients from backend
+    useEffect(() => {
+        getIngredients()
+            .then(data => setAllProducts(data))
+            .catch(() => {
+                setLoadError(true)
+                setAllProducts(mockProducts)
+            })
     }, [])
 
-    const hasMore = mockProducts.length > 7
+    // Limit to 7 products for kiosk mode
+    const displayProducts = useMemo(() => {
+        return allProducts.slice(0, 7)
+    }, [allProducts])
+
+    const hasMore = allProducts.length > 7
 
     return (
         <div className="space-y-6 short:space-y-3">
@@ -176,8 +181,9 @@ export default function IngredientsSummaryPage() {
                     <div className="flex items-start gap-2 text-cifp-neutral-600 text-sm short:text-xs">
                         <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 short:w-3 short:h-3" />
                         <p>
-                            Mostrando <span className="font-semibold">{displayProducts.length}</span> de <span className="font-semibold">{mockProducts.length}</span> productos.
-                            Usa el <span className="font-semibold">menú hamburguesa</span> para acceder a Gestión Avanzada o volver al Dashboard.
+                            Mostrando <span className="font-semibold">{displayProducts.length}</span> de <span className="font-semibold">{allProducts.length}</span> productos.
+                            {loadError && <span className="text-cifp-red ml-1">(mostrando datos de ejemplo — backend no disponible)</span>}
+                            {!loadError && ' Usa el '}<span className="font-semibold">{!loadError && 'menú hamburguesa'}</span>{!loadError && ' para acceder a Gestión Avanzada o volver al Dashboard.'}
                         </p>
                     </div>
                 </div>

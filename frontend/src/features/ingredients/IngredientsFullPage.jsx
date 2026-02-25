@@ -4,6 +4,7 @@ import { Search, ArrowUpDown, ArrowUp, ArrowDown, X, Plus, Edit, Trash2, ArrowLe
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
 import { mockProducts } from '../../services/products.mock'
+import { getIngredients } from '../../services/products.service'
 import apiFetch from '../../services/api'
 
 export default function IngredientsFullPage() {
@@ -11,7 +12,7 @@ export default function IngredientsFullPage() {
     const { user } = useAuth()
 
     // State management
-    const [products, setProducts] = useState(mockProducts)
+    const [products, setProducts] = useState([])
     const [search, setSearch] = useState('')
     const [categoryFilter, setCategoryFilter] = useState('all')
     const [providerFilter, setProviderFilter] = useState('all')
@@ -26,31 +27,11 @@ export default function IngredientsFullPage() {
     const categories = useMemo(() => [...new Set(products.map(p => p.categoria || ''))].filter(Boolean).sort(), [products])
     const suppliers = useMemo(() => [...new Set(products.map(p => p.proveedor || ''))].filter(Boolean).sort(), [products])
 
-    // Load products from backend on mount (fallback to mock on error)
+    // Load real ingredients from backend (fallback to mock on error)
     useEffect(() => {
-        let mounted = true
-        apiFetch('/products?limit=1000')
-            .then(res => {
-                const items = res?.data || res
-                if (mounted && Array.isArray(items)) {
-                    // Normalize backend data: TypeORM serializes decimal columns as strings
-                    const normalized = items.map(p => ({
-                        ...p,
-                        precio: parseFloat(p.precio) || 0,
-                        rendimiento: parseFloat(p.rendimiento) || 0,
-                        stock: Number(p.stock) || 0,
-                        stockMinimo: Number(p.stockMinimo) || 0,
-                        unidad: p.unidad ?? '',
-                        proveedor: p.proveedor ?? '',
-                    }))
-                    setProducts(normalized)
-                }
-            })
-            .catch(() => {
-                // keep mockProducts if backend not available
-                setProducts(mockProducts)
-            })
-        return () => { mounted = false }
+        getIngredients(2000)
+            .then(data => setProducts(data))
+            .catch(() => setProducts(mockProducts))
     }, [])
 
     // Filter and sort products

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, AlertTriangle, Edit, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthProvider'
-import { mockProducts, getCategories, getSuppliers } from '../../services/products.mock'
+import { getProductById } from '../../services/products.service'
 import apiFetch from '../../services/api'
 
 const EMPTY_INGREDIENT = {
@@ -32,8 +32,8 @@ export default function IngredientDetailPage() {
     const [saving, setSaving] = useState(false)
     const [isEditMode, setIsEditMode] = useState(isCreate)
 
-    const categories = getCategories()
-    const suppliers = getSuppliers()
+    const categories = ['Ingrediente']
+    const suppliers = ['Proveedor General']
 
     useEffect(() => {
         if (isCreate) {
@@ -42,36 +42,17 @@ export default function IngredientDetailPage() {
             return
         }
 
-        // Try mock first (instant load)
-        const found = mockProducts.find(p => p.id === id)
-        if (found) {
-            setForm({
-                nombre: found.nombre ?? '',
-                descripcion: found.descripcion ?? '',
-                unidad: found.unidad ?? 'kg',
-                precio: parseFloat(found.precio) || 0,
-                stock: Number(found.stock) || 0,
-                rendimiento: parseFloat(found.rendimiento) || 80,
-                categoria: found.categoria ?? '',
-                proveedor: found.proveedor ?? ''
-            })
-            setLoading(false)
-            return
-        }
-
-        // Fallback: backend API
         setLoading(true)
-        apiFetch(`/products/${id}`)
+        getProductById(id)
             .then(data => {
                 if (data) {
-                    // TypeORM serializes decimal columns as strings — parse them
                     setForm({
                         nombre: data.nombre ?? '',
                         descripcion: data.descripcion ?? '',
                         unidad: data.unidad ?? 'kg',
-                        precio: parseFloat(data.precio) || 0,
-                        stock: Number(data.stock) || 0,
-                        rendimiento: parseFloat(data.rendimiento) || 80,
+                        precio: data.precio || 0,
+                        stock: data.stock || 0,
+                        rendimiento: data.rendimiento || 80,
                         categoria: data.categoria ?? '',
                         proveedor: data.proveedor ?? ''
                     })

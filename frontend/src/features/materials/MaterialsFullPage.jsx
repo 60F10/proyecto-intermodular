@@ -7,6 +7,7 @@ import {
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
 import { mockProducts, FOOD_CATEGORIES } from '../../services/products.mock'
+import { getMaterials } from '../../services/products.service'
 import apiFetch from '../../services/api'
 
 // Helper: returns true for non-food (material) products
@@ -17,7 +18,7 @@ export default function MaterialsFullPage() {
     const { user } = useAuth()
 
     // State management
-    const [products, setProducts] = useState(() => mockProducts.filter(isMaterial))
+    const [products, setProducts] = useState([])
     const [search, setSearch] = useState('')
     const [categoryFilter, setCategoryFilter] = useState('all')
     const [providerFilter, setProviderFilter] = useState('all')
@@ -34,20 +35,11 @@ export default function MaterialsFullPage() {
     const categories = useMemo(() => [...new Set(products.map(p => p.categoria || ''))].filter(Boolean).sort(), [products])
     const suppliers = useMemo(() => [...new Set(products.map(p => p.proveedor || ''))].filter(Boolean).sort(), [products])
 
-    // Load from backend on mount — filter to materials, fallback to mock
+    // Load real materials from backend (fallback to mock on error)
     useEffect(() => {
-        let mounted = true
-        apiFetch('/products?limit=1000')
-            .then(res => {
-                const items = res?.data || res
-                if (mounted && Array.isArray(items)) {
-                    setProducts(items.filter(isMaterial))
-                }
-            })
-            .catch(() => {
-                setProducts(mockProducts.filter(isMaterial))
-            })
-        return () => { mounted = false }
+        getMaterials(2000)
+            .then(data => setProducts(data))
+            .catch(() => setProducts(mockProducts.filter(isMaterial)))
     }, [])
 
     // Filter and sort
