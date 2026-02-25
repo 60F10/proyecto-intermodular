@@ -8,6 +8,7 @@ import { OrdersModule } from './features/orders/orders.module';
 import { DeliveryNotesModule } from './features/delivery-notes/delivery-notes.module';
 import { IncidentsModule } from './features/incidents/incidents.module';
 import { InventoryModule } from './features/inventory/inventory.module';
+import { SuppliersModule } from './features/suppliers/suppliers.module';
 import { HttpLoggingMiddleware } from './common/logger/http-logging.middleware';
 import { CustomLogger } from './common/logger/custom.logger';
 
@@ -39,6 +40,7 @@ import { CustomLogger } from './common/logger/custom.logger';
     DeliveryNotesModule,
     IncidentsModule,
     InventoryModule,
+    SuppliersModule,
   ],
   providers: [CustomLogger],
   exports: [CustomLogger],

@@ -297,7 +297,11 @@ export default function MaterialsFullPage() {
                             <Button
                                 variant="primary"
                                 className="gap-2 short:h-8 short:text-xs short:px-2"
-                                onClick={() => navigate('/inventory/new')}
+                                onClick={() => handleOpenEdit({
+                                    nombre: '', sku: '', categoria: '', proveedor: '',
+                                    stock: 0, stockMinimo: 0, precio: 0, unidad: 'unidad',
+                                    descripcion: '', activo: true,
+                                })}
                             >
                                 <Plus className="w-4 h-4 short:hidden" />
                                 Crear Material
@@ -311,9 +315,8 @@ export default function MaterialsFullPage() {
                                 className="gap-2 short:h-8 short:text-xs short:px-2"
                                 title={selectedIds.length === 0 ? 'Selecciona al menos un material' : ''}
                                 onClick={() => {
-                                    if (selectedIds.length > 0) {
-                                        navigate(`/inventory/${selectedIds[0]}?edit=1`)
-                                    }
+                                    const p = products.find(x => x.id === selectedIds[0])
+                                    if (p) handleOpenEdit(p)
                                 }}
                             >
                                 <Edit className="w-4 h-4 short:hidden" />
@@ -381,7 +384,10 @@ export default function MaterialsFullPage() {
                                 return (
                                     <tr
                                         key={material.id}
-                                        onDoubleClick={() => navigate(`/inventory/${material.id}`)}
+                                        onDoubleClick={() => isRegularUser
+                                            ? navigate(`/inventory/${material.id}`)
+                                            : handleOpenEdit(material)
+                                        }
                                         className={`transition-colors cursor-pointer ${isLowStock
                                             ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
                                             : isSelected

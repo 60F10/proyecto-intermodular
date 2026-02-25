@@ -9,6 +9,9 @@ import MaterialsSummaryPage from '../features/materials/MaterialsSummaryPage'
 import MaterialsFullPage from '../features/materials/MaterialsFullPage'
 import MaterialDetailPage from '../features/materials/MaterialDetailPage'
 import ProfilePage from '../features/profile/ProfilePage'
+import SuppliersSummaryPage from '../features/suppliers/SuppliersSummaryPage'
+import SuppliersFullPage from '../features/suppliers/SuppliersFullPage'
+import SupplierDetailPage from '../features/suppliers/SupplierDetailPage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
 import RecoverPage from '../features/auth/RecoverPage'
@@ -37,6 +40,12 @@ function AppRouter() {
                 <Route path="inventory/full" element={<MaterialsFullPage />} />
                 <Route path="inventory/new" element={<MaterialDetailPage />} />
                 <Route path="inventory/:id" element={<MaterialDetailPage />} />
+
+                {/* Proveedores */}
+                <Route path="providers" element={<SuppliersSummaryPage />} />
+                <Route path="providers/full" element={<SuppliersFullPage />} />
+                <Route path="providers/new" element={<SupplierDetailPage />} />
+                <Route path="providers/:id" element={<SupplierDetailPage />} />
 
                 <Route path="profile" element={<ProfilePage />} />
             </Route>
