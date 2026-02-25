@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { Box, AlertCircle, ClipboardList, Users, Truck, Repeat, Heart, ArrowRight } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Box, AlertCircle, ClipboardList, Users, Truck, Repeat, Heart, ArrowRight, X } from 'lucide-react'
 import { Card, Button } from '../../components/ui'
 import { mockProducts } from '../../services/products.mock'
-import { useMemo } from 'react'
 import NavigationGrid from '../../components/NavigationGrid'
 
 const navigationItems = [
@@ -16,6 +16,9 @@ const navigationItems = [
 
 export default function IngredientsSummaryPage() {
     const navigate = useNavigate()
+
+    const [selectedProduct, setSelectedProduct] = useState(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     // Limit to 7 products for kiosk mode, prioritize low stock (stock < stockMinimo)
     const displayProducts = useMemo(() => {
@@ -34,6 +37,83 @@ export default function IngredientsSummaryPage() {
 
     return (
         <div className="space-y-6 short:space-y-3">
+            {/* Quick Detail Modal */}
+            {isModalOpen && selectedProduct && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={() => setIsModalOpen(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 short:p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-start justify-between mb-5 short:mb-3">
+                            <div>
+                                <h2 className="text-xl font-bold text-cifp-neutral-900 short:text-base leading-tight">
+                                    {selectedProduct.nombre}
+                                </h2>
+                                <p className="text-sm text-cifp-neutral-500 font-mono mt-1">
+                                    {selectedProduct.sku}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="ml-3 flex-shrink-0 p-2 rounded-xl bg-cifp-neutral-100 hover:bg-cifp-neutral-200 text-cifp-neutral-600 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                aria-label="Cerrar"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Details */}
+                        <dl className="grid grid-cols-2 gap-3 short:gap-2 mb-6 short:mb-4">
+                            <div className="bg-cifp-neutral-50 rounded-lg p-3 short:p-2">
+                                <dt className="text-xs font-semibold text-cifp-neutral-500 uppercase tracking-wider">Stock</dt>
+                                <dd className={`text-lg font-bold mt-0.5 short:text-base ${selectedProduct.stock < selectedProduct.stockMinimo ? 'text-cifp-red' : 'text-cifp-neutral-900'}`}>
+                                    {selectedProduct.stock} <span className="text-sm font-normal text-cifp-neutral-500">{selectedProduct.unidad}</span>
+                                </dd>
+                            </div>
+                            <div className="bg-cifp-neutral-50 rounded-lg p-3 short:p-2">
+                                <dt className="text-xs font-semibold text-cifp-neutral-500 uppercase tracking-wider">Categoría</dt>
+                                <dd className="text-base font-semibold text-cifp-neutral-900 mt-0.5 short:text-sm truncate">
+                                    {selectedProduct.categoria || '—'}
+                                </dd>
+                            </div>
+                            <div className="bg-cifp-neutral-50 rounded-lg p-3 short:p-2">
+                                <dt className="text-xs font-semibold text-cifp-neutral-500 uppercase tracking-wider">Precio</dt>
+                                <dd className="text-base font-semibold text-cifp-neutral-900 mt-0.5 short:text-sm">
+                                    €{selectedProduct.precio?.toFixed(2) ?? '—'}
+                                </dd>
+                            </div>
+                            <div className="bg-cifp-neutral-50 rounded-lg p-3 short:p-2">
+                                <dt className="text-xs font-semibold text-cifp-neutral-500 uppercase tracking-wider">Stock Mín.</dt>
+                                <dd className="text-base font-semibold text-cifp-neutral-900 mt-0.5 short:text-sm">
+                                    {selectedProduct.stockMinimo} <span className="text-sm font-normal text-cifp-neutral-500">{selectedProduct.unidad}</span>
+                                </dd>
+                            </div>
+                        </dl>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col gap-3 short:gap-2">
+                            <Button
+                                onClick={() => { setIsModalOpen(false); navigate(`/products/${selectedProduct.id}`) }}
+                                className="w-full justify-center min-h-[48px] text-base font-semibold short:min-h-[44px]"
+                            >
+                                Ver Detalle Completo
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsModalOpen(false)}
+                                className="w-full justify-center min-h-[48px] text-base short:min-h-[44px]"
+                            >
+                                Cerrar
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Page Header */}
             <div className="flex items-center justify-between gap-3 short:gap-2">
                 <div className="flex items-center gap-3">
@@ -56,7 +136,7 @@ export default function IngredientsSummaryPage() {
             <Card className="overflow-hidden flex flex-col max-h-[calc(100vh-16rem)] short:max-h-[calc(100vh-8rem)]">
                 <div className="px-6 py-4 bg-cifp-neutral-50 border-b border-cifp-neutral-200 flex-shrink-0 short:px-4 short:py-2">
                     <h2 className="text-lg font-semibold text-cifp-neutral-900 short:text-base">Resumen de Inventario</h2>
-                    <p className="text-sm text-cifp-neutral-600 mt-1 short:text-xs">Vista rápida de productos (prioridad: stock crítico)</p>
+                    <p className="text-sm text-cifp-neutral-600 mt-1 short:text-xs">Vista rápida · Doble clic para ver detalles</p>
                 </div>
 
                 <div className="overflow-y-auto flex-grow">
@@ -74,7 +154,7 @@ export default function IngredientsSummaryPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        onDoubleClick={() => { setSelectedProduct(product); setIsModalOpen(true) }}
                                         className={`transition-colors cursor-pointer ${isLowStock ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20' : 'hover:bg-cifp-neutral-100'} `}
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-cifp-neutral-600 short:px-4 short:py-2 short:text-xs">{product.sku}</td>

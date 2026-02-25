@@ -32,7 +32,19 @@ export default function IngredientsFullPage() {
         apiFetch('/products?limit=1000')
             .then(res => {
                 const items = res?.data || res
-                if (mounted && Array.isArray(items)) setProducts(items)
+                if (mounted && Array.isArray(items)) {
+                    // Normalize backend data: TypeORM serializes decimal columns as strings
+                    const normalized = items.map(p => ({
+                        ...p,
+                        precio: parseFloat(p.precio) || 0,
+                        rendimiento: parseFloat(p.rendimiento) || 0,
+                        stock: Number(p.stock) || 0,
+                        stockMinimo: Number(p.stockMinimo) || 0,
+                        unidad: p.unidad ?? '',
+                        proveedor: p.proveedor ?? '',
+                    }))
+                    setProducts(normalized)
+                }
             })
             .catch(() => {
                 // keep mockProducts if backend not available
@@ -330,7 +342,7 @@ export default function IngredientsFullPage() {
                             title={selectedIds.length !== 1 ? 'Selecciona un único producto para ver detalle' : 'Ver Detalle'}
                             onClick={() => {
                                 if (selectedIds.length === 1) {
-                                    navigate(`/dashboard/ingredientes/${selectedIds[0]}/full`)
+                                    navigate(`/products/${selectedIds[0]}`)
                                 }
                             }}
                         >
@@ -343,7 +355,7 @@ export default function IngredientsFullPage() {
                             disabled={isRegularUser}
                             className="gap-2 short:h-8 short:text-[10px] short:px-2 short:gap-1 flex-shrink-0"
                             title={isRegularUser ? 'Solo administradores pueden crear productos' : ''}
-                            onClick={() => navigate('/dashboard/ingredientes/new/full')}
+                            onClick={() => navigate('/products/new')}
                         >
                             <Plus className="w-4 h-4 short:w-3 short:h-3" />
                             <span className="short:hidden sm:short:inline">Crear</span>
@@ -459,7 +471,7 @@ export default function IngredientsFullPage() {
                                 return (
                                     <tr
                                         key={product.id}
-                                        onDoubleClick={() => navigate(`/dashboard/ingredientes/${product.id}/full`)}
+                                        onDoubleClick={() => navigate(`/products/${product.id}`)}
                                         className={`transition-colors cursor-pointer ${isLowStock
                                             ? 'bg-cifp-red-light/10 hover:bg-cifp-red-light/20'
                                             : isSelected
@@ -490,18 +502,25 @@ export default function IngredientsFullPage() {
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-cifp-neutral-700 short:px-2 short:py-1 short:text-[10px]">
-                                            €{product.precio.toFixed(2)}
+                                            €{(product.precio ?? 0).toFixed(2)}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-cifp-neutral-600 short:px-2 short:py-1 short:text-[10px]">
-                                            {product.rendimiento.toFixed(3)}
+                                            {(product.rendimiento ?? 0).toFixed(3)}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-center short:px-2 short:py-1">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button onClick={() => handleOpenEdit(product)} className="p-1 text-cifp-blue hover:bg-cifp-blue/10 rounded transition-colors" title="Editar">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <button
+                                                    onClick={() => navigate(`/products/${product.id}`)}
+                                                    className="p-2 text-cifp-neutral-500 hover:text-cifp-blue hover:bg-cifp-blue/10 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                                                    title="Ver Detalle"
+                                                >
+                                                    <Eye className="w-4 h-4 short:w-3 short:h-3" />
+                                                </button>
+                                                <button onClick={() => handleOpenEdit(product)} className="p-2 text-cifp-blue hover:bg-cifp-blue/10 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center" title="Editar">
                                                     <Edit className="w-4 h-4 short:w-3 short:h-3" />
                                                 </button>
                                                 <button
-                                                    className="p-1 text-cifp-red hover:bg-cifp-red/10 rounded transition-colors"
+                                                    className="p-2 text-cifp-red hover:bg-cifp-red/10 rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                                                     disabled={isRegularUser}
                                                     title={isRegularUser ? 'Solo administradores pueden eliminar' : 'Eliminar'}
                                                     onClick={() => handleDelete(product.id)}
