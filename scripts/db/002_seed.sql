@@ -1,9 +1,10 @@
 -- scripts/db/002_seed.sql
 -- Seed inicial - Proyecto Intermodular Lovelace
--- NOTA: Contraseñas hasheadas en el propio servidor usando pgcrypto/crypt
--- Credenciales nuevas para desarrollo:
--- - admin@lovelace.edu      → password: SuperAdmin2026!
--- - carlos.ruiz@lovelace.edu → password: Admin2026!
+-- NOTA: Contraseñas hasheadas con bcryptjs (cost=10), compatibles con el backend NestJS.
+-- Para regenerar los hashes: npx ts-node --transpile-only backend/scripts/generate-hashes.ts
+-- Credenciales de desarrollo:
+-- - admin@lovelace.edu        → password: SuperAdmin2026!
+-- - carlos.ruiz@lovelace.edu  → password: Admin2026!
 -- - maria.garcia@lovelace.edu → password: Usuario2026!
 
 BEGIN;
@@ -17,7 +18,7 @@ VALUES
   (
     '11111111-1111-1111-1111-111111111111',
     'admin@lovelace.edu',
-    crypt('SuperAdmin2026!', gen_salt('bf', 10)),
+    '$2b$10$Jh863TCoTT35wZNnA9SKnO60JQtjUjOsriyimGlJcREOFzmxuSnMe',
     'SUPERADMIN',
     'Ana',
     'Martínez',
@@ -27,7 +28,7 @@ VALUES
   (
     '22222222-2222-2222-2222-222222222222',
     'carlos.ruiz@lovelace.edu',
-    crypt('Admin2026!', gen_salt('bf', 10)),
+    '$2b$10$joyUnNU5Q0fjNMyYVIpMTOXiqOlr63V8cyra8a8g2cAMeBZ7Y20Hq',
     'ADMIN',
     'Carlos',
     'Ruiz',
@@ -37,7 +38,7 @@ VALUES
   (
     '33333333-3333-3333-3333-333333333333',
     'maria.garcia@lovelace.edu',
-    crypt('Usuario2026!', gen_salt('bf', 10)),
+    '$2b$10$SLRIylg/BSp2Nl5732vPLuI1LgVeSSyQGv2RyjCABxPu89Bes7qmq',
     'USER',
     'María',
     'García',
