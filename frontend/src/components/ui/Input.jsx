@@ -8,6 +8,7 @@ const Input = forwardRef(({
     id,
     type = 'text',
     icon: Icon,
+    value,
     ...props
 }, ref) => {
 
@@ -49,7 +50,9 @@ const Input = forwardRef(({
                     )}
                     aria-invalid={error ? 'true' : 'false'}
                     aria-describedby={error ? `${inputId}-error` : undefined}
+                    autoComplete={props.autoComplete ?? (type === 'password' ? 'current-password' : type === 'email' ? 'email' : undefined)}
                     {...props}
+                    value={value ?? ''}
                 />
             </div>
 

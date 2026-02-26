@@ -9,6 +9,7 @@ import { DeliveryNotesModule } from './features/delivery-notes/delivery-notes.mo
 import { IncidentsModule } from './features/incidents/incidents.module';
 import { InventoryModule } from './features/inventory/inventory.module';
 import { SuppliersModule } from './features/suppliers/suppliers.module';
+import { ScaleModule } from './features/scale/scale.module';
 import { HttpLoggingMiddleware } from './common/logger/http-logging.middleware';
 import { CustomLogger } from './common/logger/custom.logger';
 
@@ -41,6 +42,7 @@ import { CustomLogger } from './common/logger/custom.logger';
     IncidentsModule,
     InventoryModule,
     SuppliersModule,
+    ScaleModule,
   ],
   providers: [CustomLogger],
   exports: [CustomLogger],

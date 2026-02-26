@@ -16,12 +16,21 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // On mount try to fetch profile if token exists
     const token = getToken()
+    console.debug('[AuthProvider] token on mount:', token)
     if (token) {
       apiFetch('/auth/me')
         .then((u) => setUser(u))
-        .catch(() => {
-          clearToken()
-          setUser(null)
+        .catch((err) => {
+          console.error('[AuthProvider] /auth/me failed:', err)
+          // Only clear token automatically on explicit unauthorized
+          if (err && err.status === 401) {
+            console.warn('[AuthProvider] token invalid (401) — clearing token')
+            clearToken()
+            setUser(null)
+          } else {
+            // keep token for now; user might have transient backend errors
+            console.warn('[AuthProvider] keeping token despite error (transient?)')
+          }
         })
         .finally(() => setLoading(false))
     } else {
@@ -34,9 +43,11 @@ export function AuthProvider({ children }) {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
+    console.debug('[AuthProvider] login response:', data)
     if (data?.accessToken) {
       setToken(data.accessToken)
       const profile = await apiFetch('/auth/me')
+      console.debug('[AuthProvider] profile after login:', profile)
       setUser(profile)
       return profile
     }

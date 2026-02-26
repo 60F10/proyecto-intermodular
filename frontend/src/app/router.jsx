@@ -12,6 +12,7 @@ import ProfilePage from '../features/profile/ProfilePage'
 import SuppliersSummaryPage from '../features/suppliers/SuppliersSummaryPage'
 import SuppliersFullPage from '../features/suppliers/SuppliersFullPage'
 import SupplierDetailPage from '../features/suppliers/SupplierDetailPage'
+import ReturnsPage from '../features/returns/ReturnsPage'
 import MainLayout from '../layouts/MainLayout'
 import RequireAuth from '../components/RequireAuth'
 import RecoverPage from '../features/auth/RecoverPage'
@@ -46,6 +47,9 @@ function AppRouter() {
                 <Route path="providers/full" element={<SuppliersFullPage />} />
                 <Route path="providers/new" element={<SupplierDetailPage />} />
                 <Route path="providers/:id" element={<SupplierDetailPage />} />
+
+                {/* Bajas y Devoluciones */}
+                <Route path="returns" element={<ReturnsPage />} />
 
                 <Route path="profile" element={<ProfilePage />} />
             </Route>

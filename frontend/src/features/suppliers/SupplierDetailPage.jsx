@@ -49,7 +49,11 @@ export default function SupplierDetailPage() {
         }
         setLoading(true)
         apiFetch(`/suppliers/${id}`)
-            .then(data => { setSupplier(data); setForm({ ...data }) })
+            .then(data => {
+                const s = data?.data || data || {}
+                setSupplier(s)
+                setForm({ ...EMPTY_SUPPLIER, ...s })
+            })
             .catch(() => setError('Proveedor no encontrado.'))
             .finally(() => setLoading(false))
     }, [id, isCreate])
@@ -66,9 +70,10 @@ export default function SupplierDetailPage() {
                 setSuccessMsg('Proveedor creado correctamente.')
                 setTimeout(() => navigate('/providers/full'), 1200)
             } else {
-                const updated = await apiFetch(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(form) })
+                let updated = await apiFetch(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(form) })
+                updated = updated?.data || updated || {}
                 setSupplier(updated)
-                setForm({ ...updated })
+                setForm({ ...EMPTY_SUPPLIER, ...updated })
                 setSuccessMsg('Proveedor guardado correctamente.')
                 setTimeout(() => navigate(`/providers/${id}`), 1200)
             }
@@ -76,6 +81,44 @@ export default function SupplierDetailPage() {
             setError(err?.body?.message || err.message || 'Error al guardar.')
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleDeactivate = async () => {
+        if (!isAdmin || !supplier) return
+        try {
+            const updated = await apiFetch(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify({ ...(supplier || {}), activo: !supplier.activo }) })
+            const s = updated?.data || updated || {}
+            setSupplier(s)
+            setForm({ ...EMPTY_SUPPLIER, ...s })
+            setSuccessMsg(s.activo ? 'Proveedor activado.' : 'Proveedor desactivado.')
+            setTimeout(() => setSuccessMsg(null), 2500)
+        } catch (err) {
+            setError(err?.body?.message || err.message || 'Error al actualizar estado.')
+        }
+    }
+
+    const handleDelete = async () => {
+        if (!isAdmin) return
+        const ok = window.confirm('¿Eliminar este proveedor? Esta acción no se puede deshacer.')
+        if (!ok) return
+        try {
+            // Prefer hard delete (SUPERADMIN). If not permitted, fallback to soft-delete.
+            try {
+                await apiFetch(`/suppliers/${id}/hard`, { method: 'DELETE' })
+                navigate('/providers')
+                return
+            } catch (innerErr) {
+                const status = innerErr?.status || innerErr?.body?.status || null
+                if (status === 403 || status === 401) {
+                    await apiFetch(`/suppliers/${id}`, { method: 'DELETE' })
+                    navigate('/providers')
+                    return
+                }
+                throw innerErr
+            }
+        } catch (err) {
+            setError(err?.body?.message || err.message || 'Error al eliminar proveedor.')
         }
     }
 
@@ -136,12 +179,20 @@ export default function SupplierDetailPage() {
                         </span>
                     )}
                     {!isCreate && !isEditMode && isAdmin && (
-                        <Button
-                            onClick={() => navigate(`/providers/${id}?edit=1`)}
-                            className="gap-2 short:h-8 short:text-xs short:px-2"
-                        >
-                            <Edit className="w-4 h-4 short:hidden" /> Editar
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={() => navigate(`/providers/${id}?edit=1`)}
+                                className="gap-2 short:h-8 short:text-xs short:px-2"
+                            >
+                                <Edit className="w-4 h-4 short:hidden" /> Editar
+                            </Button>
+                            <Button variant="secondary" onClick={handleDeactivate} className="gap-2 short:h-8 short:text-xs short:px-2">
+                                {displayData?.activo ? 'Desactivar' : 'Activar'}
+                            </Button>
+                            <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white gap-2 short:h-8 short:text-xs short:px-2">
+                                Eliminar
+                            </Button>
+                        </div>
                     )}
                 </div>
             </div>

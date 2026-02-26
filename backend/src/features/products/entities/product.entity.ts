@@ -34,8 +34,8 @@ export class Product {
   @Column({ type: 'decimal', precision: 12, scale: 2, name: 'unit_price' })
   unitPrice: number;
 
-  @Column({ type: 'uuid', name: 'supplier_id' })
-  supplierId: string;
+  @Column({ type: 'uuid', name: 'supplier_id', nullable: true })
+  supplierId: string | null;
 
   @Column({ type: 'uuid', name: 'category_id' })
   categoryId: string;

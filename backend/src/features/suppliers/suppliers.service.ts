@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Supplier } from './entities/supplier.entity';
+import { Product } from '../products/entities/product.entity';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
@@ -17,6 +18,8 @@ export class SuppliersService {
   constructor(
     @InjectRepository(Supplier)
     private readonly suppliersRepository: Repository<Supplier>,
+    @InjectRepository(Product)
+    private readonly productsRepository: Repository<Product>,
     private readonly paginationService: PaginationService,
   ) {}
 
@@ -139,6 +142,14 @@ export class SuppliersService {
    */
   async hardDelete(id: string): Promise<{ message: string }> {
     const supplier = await this.findOne(id);
+    // Disassociate products that reference this supplier to allow deletion
+    await this.productsRepository
+      .createQueryBuilder()
+      .update()
+      .set({ supplierId: null })
+      .where('supplier_id = :id', { id })
+      .execute();
+
     await this.suppliersRepository.remove(supplier);
     return { message: `Proveedor eliminado definitivamente` };
   }

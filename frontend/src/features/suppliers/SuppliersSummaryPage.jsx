@@ -127,7 +127,7 @@ export default function SuppliersSummaryPage() {
                                 {/* Avatar */}
                                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center short:w-8 short:h-8">
                                     <span className="text-indigo-700 font-semibold text-sm">
-                                        {s.nombre.charAt(0).toUpperCase()}
+                                        {((s.nombre && String(s.nombre).charAt(0)) || '?').toString().toUpperCase()}
                                     </span>
                                 </div>
 

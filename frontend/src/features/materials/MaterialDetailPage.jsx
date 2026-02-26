@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
 import {
     ArrowLeft, ClipboardList, Edit, Save, X, Plus,
     Package, AlertTriangle, CheckCircle
@@ -37,6 +37,7 @@ export default function MaterialDetailPage() {
     const { id } = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { user } = useAuth()
 
     const isCreate = !id || id === 'new'
@@ -54,8 +55,10 @@ export default function MaterialDetailPage() {
     // Load material data on mount (for view/edit modes)
     useEffect(() => {
         if (isCreate) {
-            setMaterial(EMPTY_MATERIAL)
-            setForm(EMPTY_MATERIAL)
+            const scanned = location?.state?.scannedCode
+            const initial = scanned ? { ...EMPTY_MATERIAL, sku: scanned } : EMPTY_MATERIAL
+            setMaterial(initial)
+            setForm(initial)
             setLoading(false)
             return
         }

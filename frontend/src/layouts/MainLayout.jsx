@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import MobileMenu from '../components/MobileMenu'
 import fondoImg from '../assets/FondoLogin.png'
+import BarcodeListener from '../components/BarcodeListener'
 
 function MainLayout() {
   const location = useLocation()
@@ -28,6 +29,8 @@ function MainLayout() {
       <div className="absolute inset-0 bg-white/70 dark:bg-black/40 pointer-events-none"></div>
 
       <div className="relative z-10 w-full">
+        {/* Global barcode listener (invisible) */}
+        <BarcodeListener />
         <Header showMenuButton={isFocusMode} onMenuClick={() => setIsMobileMenuOpen(true)} />
 
         <main className="flex-grow max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full overflow-y-auto pb-28">

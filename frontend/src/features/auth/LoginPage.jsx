@@ -101,6 +101,7 @@ function LoginPage() {
                                 id="email"
                                 name="email"
                                 type="email"
+                                autoComplete="email"
                                 label="Email"
                                 placeholder="Ingresa tu email"
                                 icon={User}
@@ -114,6 +115,7 @@ function LoginPage() {
                                 id="password"
                                 name="password"
                                 type="password"
+                                autoComplete="current-password"
                                 label="Clave"
                                 placeholder="Ingresa tu clave"
                                 icon={Lock}

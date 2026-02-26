@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Save, ArrowLeft, AlertTriangle, Edit, X } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthProvider'
 import { getProductById } from '../../services/products.service'
@@ -21,6 +21,7 @@ const UNITS = ['kg', 'unidad', 'L']
 export default function IngredientDetailPage() {
     const { id } = useParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const { user } = useAuth()
 
     const isCreate = !id || id === 'new'
@@ -37,7 +38,8 @@ export default function IngredientDetailPage() {
 
     useEffect(() => {
         if (isCreate) {
-            setForm(EMPTY_INGREDIENT)
+            const scanned = location?.state?.scannedCode
+            setForm(prev => ({ ...EMPTY_INGREDIENT, sku: scanned || '' }))
             setLoading(false)
             return
         }

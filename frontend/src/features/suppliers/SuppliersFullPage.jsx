@@ -147,14 +147,39 @@ export default function SuppliersFullPage() {
     const confirmDelete = async () => {
         if (!deleteTarget) return
         try {
-            await apiFetch(`/suppliers/${deleteTarget}`, { method: 'DELETE' })
-            setSuppliers(prev => prev.filter(s => s.id !== deleteTarget))
+            // Try hard delete first (requires SUPERADMIN). If forbidden, fallback to soft-delete.
+            try {
+                await apiFetch(`/suppliers/${deleteTarget}/hard`, { method: 'DELETE' })
+                setSuppliers(prev => prev.filter(s => s.id !== deleteTarget))
+            } catch (innerErr) {
+                const status = innerErr?.status || innerErr?.body?.status || null
+                if (status === 403 || status === 401) {
+                    // fallback to soft delete
+                    await apiFetch(`/suppliers/${deleteTarget}`, { method: 'DELETE' })
+                    setSuppliers(prev => prev.map(s => s.id === deleteTarget ? { ...s, activo: false } : s))
+                    setSelectedIds(prev => prev.filter(x => x !== deleteTarget))
+                } else {
+                    throw innerErr
+                }
+            }
             setSelectedIds(prev => prev.filter(x => x !== deleteTarget))
         } catch (err) {
             alert(`Error: ${err?.body?.message || err.message}`)
         } finally {
             setShowDeleteModal(false)
             setDeleteTarget(null)
+        }
+    }
+
+    const handleToggleActive = async (id) => {
+        if (!isAdmin) return
+        try {
+            const current = suppliers.find(s => s.id === id) || {}
+            const updated = await apiFetch(`/suppliers/${id}`, { method: 'PUT', body: JSON.stringify({ ...current, activo: !current.activo }) })
+            const u = updated?.data || updated || {}
+            setSuppliers(prev => prev.map(p => p.id === id ? u : p))
+        } catch (err) {
+            alert(`Error: ${err?.body?.message || err.message}`)
         }
     }
 
@@ -264,11 +289,11 @@ export default function SuppliersFullPage() {
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
                         <h3 className="text-lg font-semibold mb-2">Confirmar eliminación</h3>
                         <p className="text-sm text-cifp-neutral-700 mb-4">
-                            ¿Desactivar este proveedor? Puedes reactivarlo editándolo.
+                            ¿Eliminar este proveedor? Esta acción no se puede deshacer.
                         </p>
                         <div className="flex justify-end gap-2">
                             <Button variant="secondary" onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }}>Cancelar</Button>
-                            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700 text-white">Desactivar</Button>
+                            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700 text-white">Eliminar</Button>
                         </div>
                     </div>
                 </div>
@@ -467,13 +492,22 @@ export default function SuppliersFullPage() {
                                                         </button>
                                                     )}
                                                     {isAdmin && (
-                                                        <button
-                                                            onClick={() => handleDelete(s.id)}
-                                                            className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                                                            title="Desactivar"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleToggleActive(s.id)}
+                                                                className="p-1 text-cifp-blue hover:bg-cifp-blue/10 rounded transition-colors"
+                                                                title={s.activo ? 'Desactivar' : 'Activar'}
+                                                            >
+                                                                {s.activo ? <XCircle className="w-4 h-4 text-gray-500" /> : <CheckCircle className="w-4 h-4 text-green-500" />}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(s.id)}
+                                                                className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                                title="Eliminar"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </>
                                                     )}
                                                     {!isAdmin && (
                                                         <button

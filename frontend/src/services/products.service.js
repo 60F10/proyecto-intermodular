@@ -77,6 +77,20 @@ export async function getProductById(id) {
 }
 
 /**
+ * Obtiene un producto por su SKU/Código (usa el endpoint backend /products/sku/:sku)
+ * Devuelve null si no existe.
+ */
+export async function getProductBySku(sku) {
+    try {
+        const p = await apiFetch(`/products/sku/${encodeURIComponent(sku)}`)
+        return p ? normalize(p) : null
+    } catch (err) {
+        // Not found or other error
+        return null
+    }
+}
+
+/**
  * Devuelve categorías únicas de una lista de productos normalizados.
  * Compatibilidad con uso anterior de getCategories() del mock.
  */
