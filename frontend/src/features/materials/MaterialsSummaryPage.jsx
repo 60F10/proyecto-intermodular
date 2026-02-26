@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { AlertCircle, ClipboardList, Box, Users, Truck, Repeat, Heart, ArrowRight } from 'lucide-react'
 import { Card, Button } from '../../components/ui'
 import { mockProducts, FOOD_CATEGORIES } from '../../services/products.mock'
-import { useMemo } from 'react'
+import { getMaterials } from '../../services/products.service'
+import { useMemo, useState, useEffect } from 'react'
 import NavigationGrid from '../../components/NavigationGrid'
 
 const navigationItems = [
@@ -20,22 +21,24 @@ void navigationItems
 export default function MaterialsSummaryPage() {
     const navigate = useNavigate()
 
-    // Only non-food products
-    const allMaterials = useMemo(
-        () => mockProducts.filter(p => !FOOD_CATEGORIES.includes(p.categoria)),
-        []
-    )
+    const [allMaterials, setAllMaterials] = useState([])
+    const [loadError, setLoadError] = useState(false)
 
-    // Limit to 7 items for kiosk mode, prioritise low stock
+    // Load real materials from the backend
+    useEffect(() => {
+        getMaterials()
+            .then(data => setAllMaterials(data))
+            .catch(() => {
+                setLoadError(true)
+                // Fallback: filter mock data for non-food products
+                const fallback = mockProducts.filter(p => !FOOD_CATEGORIES.includes(p.categoria))
+                setAllMaterials(fallback)
+            })
+    }, [])
+
+    // Limit to 7 items for kiosk mode
     const displayMaterials = useMemo(() => {
-        const sorted = [...allMaterials].sort((a, b) => {
-            const aLow = a.stock < a.stockMinimo
-            const bLow = b.stock < b.stockMinimo
-            if (aLow && !bLow) return -1
-            if (!aLow && bLow) return 1
-            return 0
-        })
-        return sorted.slice(0, 7)
+        return allMaterials.slice(0, 7)
     }, [allMaterials])
 
     return (

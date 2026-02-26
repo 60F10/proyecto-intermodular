@@ -29,7 +29,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 @Controller('products')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @ApiOperation({ summary: 'Obtener todos los productos con paginación' })
   @ApiResponse({
@@ -39,8 +39,9 @@ export class ProductsController {
   @Get()
   async findAll(
     @Query() paginationDto: PaginationQueryDto,
+    @Query('type') type?: string,
   ): Promise<PaginatedResponse<Product>> {
-    return this.productsService.findAllPaginated(paginationDto);
+    return this.productsService.findAllPaginated(paginationDto, type);
   }
 
   @ApiOperation({ summary: 'Obtener producto por ID' })

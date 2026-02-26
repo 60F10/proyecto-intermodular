@@ -1,0 +1,205 @@
+#!/usr/bin/env node
+/**
+ * generate_seed.js
+ * Genera scripts/db/002_seed.sql a partir de los CSV de ingredientes y materiales.
+ * Uso: node scripts/db/generate_seed.js
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, 'data');
+const OUT_FILE = path.join(__dirname, '002_seed.sql');
+
+const ING_CSV = path.join(DATA_DIR, 'Ingredientes y Materiales - Ingredientes.csv');
+const MAT_CSV = path.join(DATA_DIR, 'Ingredientes y Materiales - Materiales.csv');
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+/** Parse a CSV file whose first row is headers. Returns array of row-objects. */
+function parseCsv(filePath) {
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const lines = raw.replace(/\r/g, '').split('\n').filter(l => l.trim());
+    const headers = splitCsvLine(lines[0]);
+    return lines.slice(1).map(line => {
+        const cols = splitCsvLine(line);
+        const obj = {};
+        headers.forEach((h, i) => { obj[h.trim()] = (cols[i] || '').trim(); });
+        return obj;
+    });
+}
+
+/** Split one CSV line respecting quoted fields. */
+function splitCsvLine(line) {
+    const result = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') { inQ = !inQ; continue; }
+        if (ch === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+        cur += ch;
+    }
+    result.push(cur);
+    return result;
+}
+
+/** Convert "1,08"  →  "1.08", "" → "0.00" */
+function parsePrice(raw) {
+    const s = (raw || '').replace(/"/g, '').replace(',', '.').trim();
+    const n = parseFloat(s);
+    return isNaN(n) ? '0.00' : n.toFixed(2);
+}
+
+/** Escape single quotes for SQL literals. */
+function esc(s) { return s.replace(/'/g, "''"); }
+
+/** Zero-padded 4-digit number. */
+function pad4(n) { return String(n).padStart(4, '0'); }
+
+// ── read CSVs ─────────────────────────────────────────────────────────────────
+
+const ingRows = parseCsv(ING_CSV)
+    .filter(r => r['INGREDIENTES'])
+    .map(r => ({ name: r['INGREDIENTES'], unit: r['MEDIDA'] || 'UNIDAD', price: parsePrice(r['PRECIO']) }));
+
+const matRows = parseCsv(MAT_CSV)
+    .filter(r => r['MATERIAL'])
+    .map(r => ({ name: r['MATERIAL'], unit: r['MEDIDA'] || 'UNIDAD', price: parsePrice(r['PRECIO']) }));
+
+console.log(`Ingredientes: ${ingRows.length} filas`);
+console.log(`Materiales:   ${matRows.length} filas`);
+
+// ── build SQL ─────────────────────────────────────────────────────────────────
+
+const parts = [];
+
+parts.push(`-- ============================================================
+-- 002_seed.sql  –  Seed inicial del Proyecto Lovelace
+-- Generado automáticamente por generate_seed.js
+-- Basado en estructura_lovelace.sql (schema real)
+-- ============================================================
+
+BEGIN;
+
+-- Extension (idempotent)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- ============================================================
+-- USUARIOS
+-- Credenciales de desarrollo:
+--   admin@lovelace.edu        → SuperAdmin2026!
+--   carlos.ruiz@lovelace.edu  → Admin2026!
+--   maria.garcia@lovelace.edu → Usuario2026!
+-- ============================================================
+INSERT INTO public.users (id, email, password_hash, role, nombre, apellido1, apellido2, is_active)
+VALUES
+  (
+    '11111111-1111-1111-1111-111111111111',
+    'admin@lovelace.edu',
+    crypt('SuperAdmin2026!', gen_salt('bf', 10)),
+    'SUPERADMIN',
+    'Ana',
+    'Martínez',
+    'López',
+    true
+  ),
+  (
+    '22222222-2222-2222-2222-222222222222',
+    'carlos.ruiz@lovelace.edu',
+    crypt('Admin2026!', gen_salt('bf', 10)),
+    'ADMIN',
+    'Carlos',
+    'Ruiz',
+    'Fernández',
+    true
+  ),
+  (
+    '33333333-3333-3333-3333-333333333333',
+    'maria.garcia@lovelace.edu',
+    crypt('Usuario2026!', gen_salt('bf', 10)),
+    'USER',
+    'María',
+    'García',
+    'Sánchez',
+    true
+  )
+ON CONFLICT (email) DO NOTHING;
+
+-- ============================================================
+-- PROVEEDORES
+-- ============================================================
+INSERT INTO public.suppliers (id, name, is_active)
+VALUES
+  ('aaaaaaaa-0000-0000-0000-000000000001', 'Proveedor General', true)
+ON CONFLICT (name) DO NOTHING;
+
+-- ============================================================
+-- CATEGORÍAS
+-- ============================================================
+INSERT INTO public.categories (id, name, product_type)
+VALUES
+  ('bbbbbbbb-0000-0000-0000-000000000001', 'Ingredientes', 'INGREDIENT'),
+  ('bbbbbbbb-0000-0000-0000-000000000002', 'Materiales',   'MATERIAL')
+ON CONFLICT (name, product_type) DO NOTHING;
+`);
+
+// ── INGREDIENTS ──
+
+parts.push(`-- ============================================================
+-- PRODUCTOS – INGREDIENTES  (${ingRows.length} filas)
+-- ============================================================
+INSERT INTO public.products
+  (code, name, product_type, unit_type, unit_price, supplier_id, category_id, created_by)
+VALUES`);
+
+const ingValues = ingRows.map((r, i) => {
+    const code = `ING-${pad4(i + 1)}`;
+    return `  ('${code}', '${esc(r.name)}', 'INGREDIENT', '${esc(r.unit)}', ${r.price},
+   (SELECT id FROM public.suppliers WHERE name = 'Proveedor General'),
+   (SELECT id FROM public.categories WHERE name = 'Ingredientes' AND product_type = 'INGREDIENT'),
+   '11111111-1111-1111-1111-111111111111')`;
+});
+
+parts.push(ingValues.join(',\n'));
+parts.push(`ON CONFLICT (code) DO NOTHING;
+`);
+
+// ── MATERIALS ──
+
+parts.push(`-- ============================================================
+-- PRODUCTOS – MATERIALES  (${matRows.length} filas)
+-- ============================================================
+INSERT INTO public.products
+  (code, name, product_type, unit_type, unit_price, supplier_id, category_id, created_by)
+VALUES`);
+
+const matValues = matRows.map((r, i) => {
+    const code = `MAT-${pad4(i + 1)}`;
+    return `  ('${code}', '${esc(r.name)}', 'MATERIAL', '${esc(r.unit)}', ${r.price},
+   (SELECT id FROM public.suppliers WHERE name = 'Proveedor General'),
+   (SELECT id FROM public.categories WHERE name = 'Materiales' AND product_type = 'MATERIAL'),
+   '11111111-1111-1111-1111-111111111111')`;
+});
+
+parts.push(matValues.join(',\n'));
+parts.push(`ON CONFLICT (code) DO NOTHING;
+`);
+
+// ── INVENTORY ──
+
+parts.push(`-- ============================================================
+-- INVENTARIO INICIAL
+-- Crea una fila en public.inventory (current_qty = 0) por cada producto
+-- ============================================================
+INSERT INTO public.inventory (product_id, current_qty)
+SELECT id, 0 FROM public.products
+ON CONFLICT (product_id) DO NOTHING;
+
+COMMIT;
+`);
+
+const sql = parts.join('\n');
+fs.writeFileSync(OUT_FILE, sql, 'utf8');
+console.log(`✅  Seed generado: ${OUT_FILE}`);
+console.log(`    Líneas: ${sql.split('\n').length}`);

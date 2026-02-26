@@ -7,6 +7,7 @@ import {
 import { Card, Button, Input } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthProvider'
 import { mockProducts, FOOD_CATEGORIES } from '../../services/products.mock'
+import { getProductById } from '../../services/products.service'
 import apiFetch from '../../services/api'
 
 // Helper: returns true for non-food (material) products
@@ -59,25 +60,18 @@ export default function MaterialDetailPage() {
             return
         }
 
-        // Try to find in mock first (instant)
-        const found = mockProducts.find(p => p.id === id && isMaterial(p))
-        if (found) {
-            setMaterial(found)
-            setForm({ ...found })
-            setLoading(false)
-            return
-        }
-
-        // Fallback: try API
+        // Fetch from real API
         setLoading(true)
-        apiFetch(`/products/${id}`)
+        getProductById(id)
             .then(data => {
-                setMaterial(data)
-                setForm({ ...data })
+                if (data) {
+                    setMaterial(data)
+                    setForm({ ...data })
+                } else {
+                    setError('Material no encontrado.')
+                }
             })
-            .catch(() => {
-                setError('Material no encontrado.')
-            })
+            .catch(() => setError('Material no encontrado.'))
             .finally(() => setLoading(false))
     }, [id, isCreate])
 
