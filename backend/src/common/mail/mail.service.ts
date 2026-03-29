@@ -28,7 +28,13 @@ export class MailService {
         this.transporter = null
       })
     } else {
-      this.logger.warn('SMTP configuration incomplete, email sending disabled')
+      const missing = [
+        !host && 'SMTP_HOST',
+        !port && 'SMTP_PORT',
+        !user && 'SMTP_USER',
+        !pass && 'SMTP_PASS',
+      ].filter(Boolean).join(', ')
+      this.logger.warn(`SMTP configuration incomplete, email sending disabled. Missing config: ${missing}`)
     }
   }
 
@@ -40,16 +46,20 @@ export class MailService {
 
     const from = this.config.get<string>('MAIL_FROM') || this.config.get<string>('SMTP_USER')
 
-    const info = await this.transporter.sendMail({
-      from,
-      to,
-      subject,
-      text,
-      html,
-    })
-
-    this.logger.log(`Email sent to ${to}: ${info.messageId}`)
-    return info
+    try {
+      const info = await this.transporter.sendMail({
+        from,
+        to,
+        subject,
+        text,
+        html,
+      })
+      this.logger.log(`Email sent to ${to}: ${info.messageId}`)
+      return info
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${to} via SMTP: ${error?.message || error}`, error?.stack)
+      throw error
+    }
   }
 }
 

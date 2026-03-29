@@ -127,9 +127,12 @@ export class AuthService {
 
       await this.mailService.sendMail(user.email, subject, text, html)
     } catch (err) {
-      // Si el envío falla, lo registramos para revisión
+      // Mail failed: log for ops review but never expose to client
       const logger = new Logger('AuthService')
-      logger.warn('Envío de correo falló: ' + (err?.message || err))
+      logger.error(
+        `Failed to send recovery email to ${email}. Password reset in DB, but email blocked. Check SMTP.`,
+        err?.stack,
+      )
     }
 
     return { message: 'Si el email existe, se ha enviado un correo con instrucciones' }
